@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yibaoshan.github.io/</id>
-    <title>Yibs Space</title>
-    <updated>2021-07-30T07:35:34.380Z</updated>
+    <title>易保山</title>
+    <updated>2021-07-30T07:37:16.020Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yibaoshan.github.io/"/>
     <link rel="self" href="https://yibaoshan.github.io/atom.xml"/>
     <subtitle>The Android Developer</subtitle>
     <logo>https://yibaoshan.github.io/images/avatar.png</logo>
     <icon>https://yibaoshan.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, Yibs Space</rights>
+    <rights>All rights reserved 2021, 易保山</rights>
     <entry>
         <title type="html"><![CDATA[[Q] edit custom vm options for mac]]></title>
         <id>https://yibaoshan.github.io/post/question-edit-custom-vm-options-for-mac/</id>
