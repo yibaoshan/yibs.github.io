@@ -1,0 +1,908 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Android图形系统（四）应用篇：自定义View/ViewGroup详解 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Android图形系统（四）应用篇：自定义View/ViewGroup详解
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-07 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/Android-Graphics/" class="post-tags">
+                            # Android图形系统
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7140332948485570596">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<p>相信大多数的 Android 开发者都有过开发自定义 View 的经历，以我个人的工程经验来看，自定义 View 大体可以分为三种：改装、组合和自定义</p>
+<p><strong>改装</strong>指的是继承自某个控件，在原有功能的基础上进行增删改，比如：基于 <strong><code>ViewPager</code></strong> 打造一个无限循环的轮播图控件</p>
+<p><strong>组合</strong>指的是将2个以上的控件组合成一个控件，比如：基于 <strong><code>RelativeLayout</code></strong> + 多个 <strong><code>EditText</code></strong> 组合成一个密码输入控件</p>
+<p><strong>自定义</strong>指的是当 Android 官方控件不足以满足业务需求（比如统计图表中的饼状图/折线图）时，继承 View / ViewGroup 类，重写 <strong><code>onMeasure()</code></strong>、<strong><code>onLayout()</code></strong>、<strong><code>onDraw()</code></strong> 三大方法，从 0 到 1 创造一个新的控件</p>
+<p>本篇是图形系列的第四篇文章，今天我们来聊聊在自定义 View / ViewGroup 过程中各个阶段发生的事情</p>
+<figure data-type="image" tabindex="1"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/da9c795635904c3189e071cc3cafbd3d~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_overview.png" loading="lazy"></figure>
+<h1 id="一-测量阶段">一、测量阶段</h1>
+<p>在 Android 系统中，一个 View 的绘制显示必须要经过测量、布局和绘制这三个步骤</p>
+<p><strong>测量是为了计算每一个 View 需要的大小，View 和 ViewGroup 都需要重写 <code>onMeasure()</code> 方法来确定自己的尺寸</strong></p>
+<p><strong>布局是为了计算每一个 View 的位置，通常只需要 ViewGroup 重写 <code>onLayout()</code> 方法，根据容器的属性合理的摆放子 View</strong></p>
+<p><strong>绘制是最终绘图的阶段，所有的绘图操作都在 draw 阶段得到执行，通常需要 View 重写 <code>onDraw()</code> 方法</strong></p>
+<p>我们先来看第一步的测量流程</p>
+<figure data-type="image" tabindex="2"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7a435a9243e0409da45f52fdcb5b1f0b~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_process.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<p>在<a href="https://juejin.cn/post/7132777622487957517#heading-39">上一篇</a>文章中，我们介绍了测量流程是由 ViewRootImpl 类中的 <strong><code>performTraversals()</code></strong> 方法发起的，经过层层转发，最终会调用到每个 View 的 <strong><code>onMeasure()</code></strong> 方法</p>
+<p><strong>View 真正的尺寸信息就是在 <code>onMeasure()</code> 方法中被确定的</strong></p>
+<p>那么 View 是根据什么来确定自己应当具有多大的尺寸呢？不可能让子 View 自由地决定自己的大小吧，父 View 必然需要向子 View 传递信息来帮助子 View 来确定尺寸</p>
+<h2 id="什么是-measurespec">什么是 MeasureSpec</h2>
+<p>查看 <strong><code>measure()</code></strong> 的方法签名：</p>
+<pre><code class="language-java">void measure(int widthMeasureSpec, int heightMeasureSpec)
+</code></pre>
+<p><strong><code>widthMeasureSpec</code></strong> 和 <strong><code>heightMeasureSpec</code></strong> 就是帮助子 View 确定大小的参数</p>
+<p>它们的类型是 <strong>int</strong>，内部以高两位来存储测量的模式，低三十位为测量的大小，计算中使用了位运算来提高并优化效率</p>
+<p>当然，我们不必使用位运算来获得对应的数值，MeasureSpec 类为我们提供了对应的方法</p>
+<pre><code class="language-java">  class MeasureSpec {
+    int UNSPECIFIED;//未指定，不限制大小
+    int EXACTLY;//精确模式
+    int AT_MOST;//最大模式
+   
+    int getMode(int measureSpec) return (measureSpec &amp; MODE_MASK);
+    int getSize(int measureSpec) return (measureSpec &amp;  ~MODE_MASK);
+  }
+</code></pre>
+<p>MeasureSpec 声明了三种测量模式：</p>
+<ul>
+<li><strong><code>UNSPECIFIED</code> ：未指定模式，也可以称为无限制模式。当你收到此模式时，表明父视图不关心你的尺寸大小，你可以随意设置自己的尺寸信息。什么情况下可能收到 <code>UNSPECIFIED</code> 呢？比如当你的父视图是可以纵向滚动的 <code>ScrollView</code> ，那子视图的高度大小对于父视图来说没有意义。无论你多高（即使超出屏幕），都可以通过滑动屏幕来查看（同理，如果是横向滚动那么宽度就没有意义）</strong></li>
+<li><strong><code>EXACTLY </code>：精确模式。当你收到此模式时，表示父视图希望你就这么大（不要小于或大于给定的大小），通常在 xml 中指定大小或者设为 <code>match_parent</code> 时会收到 <code>EXACTLY</code> 模式</strong></li>
+<li><strong><code>AT_MOST </code>：最大模式。当你收到此模式时，表示你可以在父视图给定的范围内随意发挥，但最好不要超过父视图给你的大小，通常在 xml 中设为 <code>wrap_content</code> 时会收到 <code>AT_MOST</code> 模式</strong></li>
+</ul>
+<p>看到这里或许已经有同学发现了，View 的测量模式好像和我们在 xml  中指定的宽高有关：</p>
+<blockquote>
+<ol>
+<li><strong>View 设置为<code> match_parent</code> 或固定值时，将会收到 <code>EXACTLY</code> 精确模式</strong></li>
+<li><strong>View 设置为 <code>wrap_content</code> 时，将会收到 <code>AT_MOST</code> 最大模式</strong></li>
+</ol>
+</blockquote>
+<p>事实真的如此吗？我们接着往下看</p>
+<h2 id="measurespec-是由什么决定的">MeasureSpec 是由什么决定的</h2>
+<p>关于 View 测量模式的创建规则，网上有张图流传的比较广</p>
+<figure data-type="image" tabindex="3"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e4d780ed943e47e8b28e68eabf998835~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_spec_book.JPG" loading="lazy"></figure>
+<p><em>图片来源：自己拍的</em></p>
+<p>上图是任主席在2015年出版的 <strong>《Android开发艺术探索》</strong> 第四章的拍摄图，图中的表格非常详细了展示了一个 <strong>“普通 View”</strong> 的 MeasureSpec 的创建规则</p>
+<p><strong>如果你的自定义 View 的父视图是 FrameLayout 、LinearLayout 、RelativeLayout，恭喜你，这些规则适用于你</strong></p>
+<p><strong>但如果你的父视图是 ScrollView、RecyclerView 等支持滚动的 ViewGroup，那么你收到的测量模式多半和上图描述的不符</strong></p>
+<p>接下来通过几组测试来验证一下我们的想法：</p>
+<p><strong>我们用 FrameLayout 和 ScrollView 作为测试的父视图，TextView 作为测试的子 View</strong></p>
+<p><strong>然后对父视图和子 View 分别设置不同的 LayoutParams 属性，观察它们在不同宽高模式下的表现：</strong></p>
+<figure data-type="image" tabindex="4"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aeea67ae7de54a6699bb8989ab4127d5~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_spec_test.png" loading="lazy"></figure>
+<p><em>图片来源：自己截图 测试的代码可以点击<a href="https://github.com/yibaoshan/Blackboard/blob/master/Blog/src/main/java/com/android/blog/android_view/demo/v4/MeasureTestActivity.java">这里</a>查看，测试的详细数据可以点击<a href="https://www.yuque.com/docs/share/c2296195-b016-49d3-a7d4-30775b2c0f3f">这里</a>查看</em></p>
+<p>从测试的结果来看，我们可以得出几个比较有趣的结论：</p>
+<ul>
+<li><strong>FrameLayout + TextView 的组合，子 View 得到的测量模式和预期表现相同</strong></li>
+<li><strong>FrameLayout 为 <code>wrap_content</code> 时（<em>第二轮第1组</em>），如果子 View 设置为 <code>match_parent</code>，那子 View 将会收到两次测量，最终的 MeasureSpec 固定为 <code>EXACTLY</code></strong></li>
+<li><strong>在 FrameLayout 中，如果子 View 宽高设置为固定值，且期望大小超过了父视图（<em>第三轮第3组测试</em>）时，父视图返回的宽高是我们设定的值。同理，如果子 View 的设置的大小超过屏幕实际宽高系统，父视图返回的依旧是设定的值，即使它非常不合理</strong></li>
+<li><strong>在 ScrollView 中，无论子 View 是 <code>math_parent</code> 、<code>wrap_content</code> 还是固定值，或者说不管子 View 申请的高度是大于父视图还是小于父视图的高度，ScrollView 统统指定为自身高度，Mode 为 <code>UNSPECIFIED</code></strong></li>
+</ul>
+<p>我们发现一旦使用 ScrollView 作为父视图，那么 <strong>“<code>match_parent</code> / <code>wrap_conent</code> 对应 <code>EXACTLY</code>/ <code>AT_MOST</code>”</strong> 这套规则将不再适用</p>
+<p><strong>为什么 ScrollView 会如此特殊呢？</strong></p>
+<p>原因也很简单，因为它不是调用 <strong><code>getChildMeasureSpec()</code></strong> 方法为子 View 生成的测量结果，而是直接调用 <strong><code>makeMeasureSpec()</code></strong> 方法为子 View 指定了测量模式与大小</p>
+<pre><code class="language-java">void measureChild() {
+    ViewGroup.LayoutParams lp = child.getLayoutParams();
+  
+    int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,lp.width);
+    int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(parentSize,MeasureSpec.UNSPECIFIED);//高度指定为parentSize
+
+    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
+</code></pre>
+<p>到这里，我们就可以来尝试回答小标题的问题：<strong>MeasureSpec 是由什么决定的？</strong></p>
+<p><strong>大多数情况下，父视图通过调用 <code>getChildMeasureSpec()</code> 方法为子 View 生成测量结果，那么子 View 的MeasureSpec 是由父视图的 SpecMode 和 子 View 自身的 LayoutParams 共同决定的</strong></p>
+<p><strong>当父视图是调用 <code>makeMeasureSpec()</code> 方法为子 View 指定测量结果时（<em>比如示例中的 ScrollView</em>），子 View 的MeasureSpec 是由父视图的业务属性决定的！</strong></p>
+<p>关于 MeasureSpec 的介绍暂时告一段落，接下来进入本小节正题：View 的测量</p>
+<h2 id="view-的测量过程">View 的测量过程</h2>
+<p>View 的测量过程是自顶向下的过程，我们可以把 View 当做一棵以 DecorView 作为 <strong><code>root</code></strong> 节点的多叉树，测量事件会以深度优先的顺序遍历整棵树</p>
+<p>View 的测量工作是在 <strong><code>onMeasure()</code></strong> 方法中进行的，我们在自定义 View 时需要重写 <strong><code>onMeasure()</code></strong> 方法并执行测量工作，接着再调用 <strong><code>setMeasuredDimension()</code></strong> 方法将测量的结果保存起来</p>
+<p>我们也可以选择不重写 <strong><code>onMeasure()</code></strong> 方法，因为 Android 系统为我们提供了默认实现</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/View.java
+class View {
+
+    void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+      	int width = getDefaultSize(widthMeasureSpec);
+      	int height = getDefaultSize(heightMeasureSpec);
+        setMeasuredDimension(width,height);//保存宽高值
+    }
+    
+    int getDefaultSize(int size, int measureSpec) {
+        switch (specMode) {
+            case MeasureSpec.UNSPECIFIED://注意，如果接收到未指定模式，一定要为View设置背景或者设置最小高度
+                result = size;
+                break;
+            case MeasureSpec.AT_MOST:
+            case MeasureSpec.EXACTLY:
+                result = specSize;
+                break;
+        }
+        return result;
+    }
+}
+</code></pre>
+<p>在默认实现的 <strong><code>onMeasure()</code></strong> 方法中，会先调用 <strong><code>getDefaultSize()</code></strong> 方法为自己生成宽高信息，接着会调用 <strong><code>setMeasuredDimension()</code></strong> 方法将刚刚获取的宽高值保存起来</p>
+<p><strong><code>getDefaultSize()</code></strong> 方法中是默认生成视图尺寸的规则：</p>
+<blockquote>
+<ol>
+<li><strong>如果你的 MeasureSpec 是 <code>AT_MOST</code> 或者 <code>EXACTLY</code>，那么你得到的 <code>size</code> 和父视图相同</strong></li>
+<li><strong>如果你的 MeasureSpec 是 <code>UNSPECIFIED</code>，那么你的尺寸将会取背景尺寸或者最小宽高中最大的那个值</strong></li>
+</ol>
+</blockquote>
+<p><strong>从 <strong><code>getDefaultSize()</code></strong> 方法代码逻辑来看，建议大家在自定义 View 时最好重写 <strong><code>onMeasure()</code></strong> 方法，最起码要处理 MeasureSpec 为 <strong><code>UNSPECIFIED</code></strong> 的情况，否则，一旦你的 MeasureSpec 被指定为 <strong><code>UNSPECIFIED</code></strong>，且 View 没有设置最小宽高，那么你将无法在屏幕上看到它，因为它的高度或者宽度为 0 ！</strong></p>
+<p>总结一下 View 在测量流程完成的事情：</p>
+<ol>
+<li><strong>根据父视图传递的 MeasureSpec，合理的计算自己所需的尺寸大小</strong></li>
+<li><strong>在确定了自身尺寸后，调用 <code>setMeasuredDimension()</code> 方法保存尺寸信息</strong></li>
+</ol>
+<h2 id="viewgroup-的测量过程">ViewGroup 的测量过程</h2>
+<p>当 ViewGroup 中的所有子 View 全部测量完以后，接下来就该轮到 ViewGroup 为自己计算高度了</p>
+<p><strong>和 View 的测量过程相比，Android 并没有为 ViewGroup 的 <strong><code>onMeasure()</code></strong> 方法提供默认实现</strong></p>
+<p><strong>这是因为不同的容器的业务逻辑都不一样，即使同一个容器，也可能因为适用场景的差别而使用不同的测量策略</strong></p>
+<p>拿 LinearLayout 来举例，在高度设置为 <strong><code>wrap_content</code></strong> 的情况下：</p>
+<ul>
+<li>
+<p><strong>如果是横向布局，LinearLayout 的高度应该是最大子 View 的高度</strong></p>
+</li>
+<li>
+<p><strong>如果是纵向布局，LinearLayout 的高度应该为所有子View的高度总和</strong></p>
+</li>
+</ul>
+<p>虽然 ViewGroup 的 <strong><code>onMeasure()</code></strong> 方法没有默认实现，但是， Android 为 ViewGroup 准备了几个测量子 View 的方法，因为在大多数情况下各个子 View 的测量方式都是一样的，一起来看看</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+
+  	//测量子视图
+    void measureChild() {
+        LayoutParams lp = child.getLayoutParams();
+        int childWidthMeasureSpec = getChildMeasureSpec();
+        int childHeightMeasureSpec = getChildMeasureSpec();
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+
+  	//测量子视图并计算其Margin
+    void measureChildWithMargins() {
+        MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+        int childWidthMeasureSpec = getChildMeasureSpec();
+        int childHeightMeasureSpec = getChildMeasureSpec();
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+
+  	//获取子View的MeasureSpec，对于ViewGroup来说，这是非常重要的一个方法！！！
+    int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        ...
+    }
+
+}
+</code></pre>
+<p>ViewGroup 类中默认提供了3个测量子 View 的方法：</p>
+<blockquote>
+<ol>
+<li><strong><code>measureChild()</code>：调用 <code>getChildMeasureSpec()</code> 方法生成子视图的 MeasureSpec ，成功后通知子视图执行 <code>measure()</code> 方法</strong></li>
+<li><strong><code>measureChildWithMargins() </code>：调用 <code>getChildMeasureSpec()</code> 方法生成子视图的 MeasureSpec ，成功后通知子视图执行 <code>measure()</code> 方法</strong></li>
+<li><strong><code>getChildMeasureSpec()</code>：根据父视图的 MeasureSpec 和 子视图的 LayoutParams 属性来生成 子视图的 MeasureSpec</strong></li>
+</ol>
+</blockquote>
+<p><strong><code>measureChild()</code></strong> 和 <strong><code>measureChildWithMargins()</code></strong> 都调用了 <strong><code>getChildMeasureSpec()</code></strong> 方法来为子 View 生成 MeasureSpec，两个方法唯一区别是后者使用了 MarginLayoutParams，在计算子视图可用空间时会考虑到 Margin 的部分</p>
+<p><strong>什么是 MarginLayoutParams 呢？</strong></p>
+<h3 id="1-初识-layoutparams">1、初识 LayoutParams</h3>
+<p>View 有 <strong><code>top</code></strong> 、<strong><code>bottom</code></strong> 、<strong><code>left</code></strong> 、<strong><code>right</code></strong> 和 <strong><code>padding</code></strong> 这几个属性，记录的是这个 View 在屏幕坐标系中的绝对位置，但它这几个属性只有在 <strong><code>layout </code></strong> 阶段以后才会有具体的值</p>
+<p><strong>在没有确定 View 的绝对位置之前，Android 用 LayoutParams 来描述一个 View / ViewGroup 的宽高值</strong></p>
+<pre><code class="language-java">//描述View/ViewGroup的宽高值
+class LayoutParams {
+
+    int MATCH_PARENT = -1;
+    int WRAP_CONTENT = -2;
+
+    //视图的宽高属性，小于0表示为WRAP_CONTENT/MATCH_PARENT，大于0表示为具体的尺寸
+    int width;
+    int height;
+}
+</code></pre>
+<p>LayoutParams 使用 <strong><code>width</code></strong> 和 <strong><code>height</code></strong> 属性来描述宽高，如果小于0表示为 <strong><code>WRAP_CONTENT</code></strong> / <strong><code>MATCH_PARENT</code></strong>，大于0则表示为具体的尺寸</p>
+<p>ViewGroup 中还有一个叫 MarginLayoutParams 的静态内部类，它继承自 LayoutParams 并在其基础上增加了上下左右间距值</p>
+<p>我们日常使用的 ViewGroup 中凡是支持设置 <strong><code>margin</code></strong> 属性的都是继承自 MarginLayoutParams，如果你想要在代码中动态的修改 View 的 <strong><code>margin</code></strong> 属性，记得强转为 MarginLayoutParams 类型再进行操作</p>
+<pre><code class="language-java">//在宽高值的基础上增加了上下左右间距值，凡是支持设置margin的容器都是继承自MarginLayoutParams
+class MarginLayoutParams extends ViewGroup.LayoutParams {
+
+    leftMargin;
+    topMargin;
+    rightMargin;
+    bottomMargin;
+    ...
+}
+</code></pre>
+<p>MarginLayoutParams 虽然是 View 的属性之一，但它描述的间距值并不算在 View 的可用空间，在计算视图大小时，<strong><code>margin</code></strong> 是算到父视图的可用空间里，只有 <strong><code>padding</code></strong> 才是算到自己的可用空间</p>
+<h3 id="2-生成-childview-measurespec">2、生成 ChildView MeasureSpec</h3>
+<p>关于 LayoutParams 暂时先告一段落，在后面 <strong><code>layout</code></strong> 阶段会再次介绍，它是 ViewGroup 能够正确摆放子视图的重要依据</p>
+<p><strong>接下来我们开始 ViewGroup 最核心的逻辑，如何为子 View 生成 MeasureSpec ？</strong></p>
+<p>前面说了 Android 虽然没有为 ViewGroup 提供 <strong><code>onMeasure()</code></strong> 方法的默认实现，但 Android 为 ViewGroup 准备了几个测量子 View 的方法</p>
+<p>在这几个测量子 View 的方法中，最重要的当属 <strong><code>getChildMeasureSpec()</code></strong> 方法</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+  
+    int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        int specMode = MeasureSpec.getMode(spec);//父视图的 SpecMode
+        int specSize = MeasureSpec.getSize(spec);//父视图的大小
+        int size = Math.max(0, specSize - padding);//子视图可用空间大小为：父视图大小 - 父视图 padding - 子视图 margin
+    
+        int resultSize = 0;
+        int resultMode = 0;
+    
+        switch (specMode) {
+            case MeasureSpec.EXACTLY: // 父视图为 EXACTLY 时
+                if (childDimension &gt;= 0)
+                    resultSize = childDimension;// 子视图设置的大小为固定值时，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;/
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = size;// 子视图为 MATCH_PARENT ，把你的大小设置和父视图相同，值固定了，模式给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = size;// 子视图为 WRAP_CONTENT，爸爸也不知道你要多大，把我的全部都给你，模式指定为最大模式，你在这个范围内随意发挥
+                    resultMode = MeasureSpec.AT_MOST;
+            case MeasureSpec.AT_MOST: // 父视图为 AT_MOST 时
+                if (childDimension &gt;= 0) {
+                    resultSize = childDimension;// 同上，子视图设置的大小为固定值时，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = size;// 虽然子视图是 MATCH_PARENT 但父视图我自个是 AT_MOST，那怎么办？我多大你多大呗，将模式指定为最大模式，在我给你这个范围内随意发挥好了
+                    resultMode = MeasureSpec.AT_MOST;
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = size;// 同上，把父视图的全部都给你，模式指定为最大模式，你在这个范围内随意发挥
+                    resultMode = MeasureSpec.AT_MOST;
+        case MeasureSpec.UNSPECIFIED: // 父视图为 UNSPECIFIED 时
+                if (childDimension &gt;= 0) {
+                    resultSize = childDimension;// 不管父视图我是什么模式，只要你设置了具体值，你爱多大多大
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = sUseZeroUnspecifiedMeasureSpec ? 0 : size;// 子视图想和我一样大？ 满足你，模式给你 UNSPECIFIED，ps：sUseZeroUnspecifiedMeasureSpec 默认为false
+                    resultMode = MeasureSpec.UNSPECIFIED;  //mode为
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = sUseZeroUnspecifiedMeasureSpec ? 0 : size;// 你也不知道自己多大，那我就把自己的尺寸给你，模式也给你我的模式 UNSPECIFIED
+                    resultMode = MeasureSpec.UNSPECIFIED;
+        }
+        return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
+    }
+}
+</code></pre>
+<p><strong><code>getChildMeasureSpec()</code></strong> 中的逻辑是根据父视图的 MeasureSpec 和 子 View 的 LayoutParams 来生成 MeasureSpec，规则如下：</p>
+<blockquote>
+<ul>
+<li><strong>父视图为 <code>EXACTLY</code> 时</strong>
+<ul>
+<li><strong>子视图设置的大小为固定值，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 <code>EXACTLY</code></strong></li>
+<li><strong>子视图为 <code>MATCH_PARENT</code> ，把你的大小设置和父视图相同，值固定了，模式给你精确模式 <code>EXACTLY</code></strong></li>
+<li><strong>子视图为 <code>WRAP_CONTENT</code>，爸爸也不知道你要多大，把我的全部都给你，模式指定为最大模式，你在这个范围内随意发挥</strong></li>
+</ul>
+</li>
+<li><strong>父视图为 <code>AT_MOST</code> 时</strong>
+<ul>
+<li><strong>子视图设置的大小为固定值，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 <code>EXACTLY</code></strong></li>
+<li><strong>子视图为 <code>MATCH_PARENT</code>，虽然子视图是 <code>MATCH_PARENT</code> 但父视图我自个是 <code>AT_MOST</code>，那怎么办？我多大你多大呗，将模式指定为最大模式，在我给你这个范围内随意发挥好了</strong></li>
+<li><strong>子视图为 <code>WRAP_CONTENT</code>，把父视图的全部都给你，模式指定为最大模式，你在这个范围内随意发挥</strong></li>
+</ul>
+</li>
+<li><strong>父视图为 <code>UNSPECIFIED</code> 时</strong>
+<ul>
+<li><strong>子视图设置的大小为固定值，不管父视图我是什么模式，只要你设置了具体值，你爱多大多大</strong></li>
+<li><strong>子视图为 <code>MATCH_PARENT</code>，子视图想和我一样大？ 满足你，模式给你 <code>UNSPECIFIED</code></strong></li>
+<li><strong>子视图为 <code>WRAP_CONTENT</code>，你也不知道自己多大，那我就把自己的尺寸给你，模式也给你我的模式 <code>UNSPECIFIED</code></strong></li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>我们将 <strong><code>getChildMeasureSpec()</code></strong>  方法中 ChildView MeasureSpec 的生成规则统计起来（<em>见下图</em>）就是 <strong>《Android开发艺术探索》</strong> 中表格的内容</p>
+<figure data-type="image" tabindex="5"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8f0f9658737e430c94ee00ea11381213~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_spec_book_excel.jpg" loading="lazy"></figure>
+<p><em>图片来源：https://www.yuque.com/docs/share/c2296195-b016-49d3-a7d4-30775b2c0f3f</em></p>
+<p>接下来我们通过一段示例代码来演示一下 <strong><code>getChildMeasureSpec()</code></strong> 方法在 LinearLayout 中的实战使用</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/widget/LinearLayout.java
+class LinearLayout extends ViewGroup {
+  
+  	int mTotalLength = 0;
+  	
+    void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int maxWidth =0;
+        for (int i = 0; i &lt; count; ++i) {
+            measureChildWithMargins(child);//为每个子 View 创建 MeasureSpec并通知执行 measure
+            maxWidth = Math.max(maxWidth,child.getWidth());// 更新 LinearLayout 的最大宽度
+            mTotalLength += child.getHeight();// 获取每个View高度，累加结果 LinearLayout 的高度
+        }
+        setMeasuredDimension(maxWidth,mTotalLength);//设置自身尺寸
+    }
+
+    void measureChildWithMargins(View child) {
+        int width = getChildMeasureSpec();
+        int height = getChildMeasureSpec();
+        child.measure(width, height);// 通知子 View 执行 measure
+    }
+
+    void getChildMeasureSpec();//为子 View 生成 MeasureSpec
+
+}
+</code></pre>
+<p>示例代码演示的是一个纵向的 LinearLayout 测量过程：</p>
+<blockquote>
+<ol>
+<li><strong>调用了 <code>measureChildWithMargins()</code> 方法为每个子 View 创建 MeasureSpec 并通知其执行 <code>measure</code></strong></li>
+<li><strong>子 View 测量完成后，获取每个子 View 的高度累加到成员变量 <code>mTotalLength</code> ，同时不断更新最大宽度的子 View，它的宽度就是 LinearLayout 将来的宽度</strong></li>
+<li><strong>循环结束表示所有子 View 全都测量完成，调用 <code>setMeasuredDimension()</code> 方法保存自身尺寸信息</strong></li>
+</ol>
+</blockquote>
+<p><strong>当 LinearLayout 的测量工作结束后，会开始执行它的父视图的测量流程，直到最顶部的 DecorView 的 <code>measure</code> 方法执行结束，到那时，整个视图所依附的 Window 的大小才可以确定下来</strong></p>
+<h2 id="onmeasure-执行多次的原因">onMeasure() 执行多次的原因</h2>
+<p>有过自定义 View / ViewGroup 开发经验的小伙伴肯定知道，View 的 <strong><code>onMeasure()</code></strong> 方法可能会存在被多次调用的情况</p>
+<p>尤其在首次加载 Activity 时，每个 View 最少也会执行2次 <strong><code>onMeasure()</code></strong> 方法</p>
+<p>这2次调用都发生在 ViewRootImpl 类的 <strong><code>performTraversals()</code></strong> 方法中，其他的几次调用有的也还是发生在 ViewRootImpl 中，有的则是 ViewGroup 的个人行为，我们接着往下看</p>
+<h3 id="1-创建-surface-引起的二次调用">1、创建 Surface 引起的二次调用</h3>
+<p><a href="https://juejin.cn/post/7132777622487957517#heading-14">上一篇</a>文章中我们知道了 ViewRootImpl 里面管理着一个 Surface 对象</p>
+<p><strong>View 必须依托 Surface 对象才能够显示绘制，所以，在 View 执行测量工作之前，Surface 的大小必须先确定下来</strong></p>
+<p>Surface 的大小什么时候确定的呢？我们来看 <strong><code>ViewRootImpl#performTraversals()</code></strong> 方法中的逻辑</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+    
+    void performTraversals() {
+        if(layoutRequested){//APP发起requestLayout请求
+            boolean 视图尺寸发生变化 = measureHierarchy();//① 执行日常测量工作
+        }
+        if(首次添加视图/视图尺寸发生变化等){
+            relayoutWindow();//Window大小确定下来以后，去sf申请对应大小的surface
+            performMeasure();//② 申请到surface后再次测量，此方法结束后，该window的大小将会被确定，除非window的尺寸发生改变，否则不会再次执行该方法
+        }
+    }
+    
+    boolean measureHierarchy(){//执行测量，并返回和缓存的窗口大小比，新的测量尺寸是否发生变化
+      performMeasure();
+    }
+    
+    void performMeasure() {
+        mView.measure();
+    }
+}
+</code></pre>
+<p>在 <strong><code>performTraversals()</code></strong> 方法中可以看到，当我们发起 <strong><code>requestLayout</code></strong> 请求时，最终是由 <strong><code>measureHierarchy()</code></strong> 方法来执行测量工作</p>
+<p>测量工作结束后，接着判断是不是首次添加视图或者测量得到的结果与缓存窗口尺寸不符</p>
+<ol>
+<li><strong>如果是首次添加视图，说明 Surface 之前不存在，需要重新创建</strong></li>
+<li><strong>如果调用 <code>measureHierarchy()</code> 方法得到的测量结果与缓存不符，说明 Window 的大小发生变化，需要重新申请Surface</strong></li>
+</ol>
+<p>只要满足以上条件，ViewRootImpl 便会携带测量得到的宽高值去调用 <strong><code>relayoutWindow()</code></strong> 方法，请求 SF 进程创建一个符合尺寸要求的 Surface</p>
+<p>等到 <strong><code>relayoutWindow()</code></strong> 方法返回，一个和 DecorView 大小相同的 Surface 便创建成功。</p>
+<p>在创建 Surface 的过程中，一共执行了两次测量（代码中标记为1/2号）：</p>
+<blockquote>
+<ol>
+<li>
+<p><strong>第一次是在 <code>measureHierarchy()</code> 方法中调用了 <code>performMeasure()</code> 执行测量工作</strong></p>
+</li>
+<li>
+<p><strong>第二次是在 <code>relayoutWindow()</code> 方法申请到 Surface 以后，再次调用 <code>performMeasure()</code> 发起的测量</strong></p>
+</li>
+</ol>
+</blockquote>
+<p><strong>这两次测量就是首次加载 Activity 时，View 都会执行2次 <code>onMeasure()</code> 方法的原因！</strong></p>
+<h3 id="2-dialog-可能会引发多次调用">2、Dialog 可能会引发多次调用</h3>
+<p>在了解创建 Surface 会导致二次调用 <strong><code>onMeasure()</code></strong> 方法的原因后，我们来看下面的这张表格：</p>
+<figure data-type="image" tabindex="6"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/457d2eca57e8434180eb62cf7057abeb~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_count_test.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己截图 测试代码点击<a href="https://github.com/yibaoshan/Blackboard/blob/master/Blog/src/main/java/com/android/blog/android_view/demo/v4/MeasureTestActivity.java">这里</a>查看，详细数据点击<a href="https://www.yuque.com/docs/share/c2296195-b016-49d3-a7d4-30775b2c0f3f">这里</a>查看</em></p>
+<p>这张表格的数据来自我自己做的一个小测试，测试的步骤很简单：<strong>自定义一个 ViewGroup 继承自 FrameLayout，在不同的 Activity 主题下，记录 <code>onMeasure()</code> 方法的执行次数</strong></p>
+<p>从测试的结果来看，普通的 Activity + FrameLayout 的组合，在首次加载 Activity 时 <strong><code>onMeasure()</code></strong> 方法被调用了2次，在我们手动请求 <strong><code>requestLayout()</code></strong> 以后 <strong><code>onMeasure()</code></strong> 方法执行了一次，测试结果符合我们的预期</p>
+<p><strong>但是，当我们把 Activity 的主题为 Dialog 以后，<code>onMeasure()</code> 方法的调用次数竟然达到了6次！</strong></p>
+<p><strong>再次修改测试条件，我们把根视图的宽度改为和屏幕实际宽度相同以后，发现  <code>onMeasure()</code> 方法的调用次数更是达到了惊人的12次！！</strong></p>
+<p>为什么会发生这么多次的调用？跟踪 <strong><code>performMeasure()</code></strong> 方法的调用链可以发现，多出来的几次调用都是在 <strong><code>measureHierarchy()</code></strong> 方法内发起，那接下来我们就一起来看看 <strong><code>measureHierarchy()</code></strong> 方法里面都做了些什么</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    boolean measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
+        //宽度为 WRAP_CONTENT，通常表示是 Dialog 或者是 Dialog 主题的 Activity
+        if (width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            int baseSize = 读取系统预置的Dialog宽度;
+            //既然是Dialog，Android不希望它充满屏幕，所以这里的宽度被设置为了预设宽度
+            childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+            childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);//高度依旧为屏幕高度，你想要多高自己定
+            //①进行首次测量
+            performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+            //测量结束后，发现视图期望的宽度没有超过预设宽度，goodMeasure设为true，在后续流程中不再执行测量工作，MEASURED_STATE_TOO_SMALL这个flag表示测量尺寸小于视图想要的空间
+            if ((host.getMeasuredWidthAndState() &amp; View.MEASURED_STATE_TOO_SMALL) == 0) {
+                goodMeasure = true;
+            } else {
+                //视图期望的宽度超过了预置宽度，比如我在xml写死&quot;layout_width=10086px&quot;，那么把baseSize改大一些再次测量试一试
+                baseSize = (baseSize + desiredWindowWidth) / 2;
+                //②再次执行测量
+                performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+                //同样的，在测量执行结束后查看宽度是否满足预期，满足则将goodMeasure设为true，在后续流程中不再执行测量工作
+                if ((host.getMeasuredWidthAndState() &amp; View.MEASURED_STATE_TOO_SMALL) == 0) {
+                    goodMeasure = true;
+                }
+            }
+        }
+        //方法能走到这有两种情况：
+        //1. 该视图是普通的Activity，DecorView宽高不是 WRAP_CONTENT
+        //2. 该视图是Dialog类型，且Dialog想要的宽度很大，系统预设的宽度不满足，再次扩容以后同样不满足，没办法，索性直接给它屏幕的实际宽高让它自己折腾去
+        if (!goodMeasure) {
+            //③这里的测量方法如果得到执行，要么是第一次调用，要么是第三次调用
+            performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        }
+        return windowSizeMayChange;//返回和缓存的window相比，测量下来的视图大小是否发生变化
+    }
+}
+</code></pre>
+<p>在 <strong><code>measureHierarchy()</code></strong> 方法中，首先会判断 DecorView 的宽度是不是 <strong><code>WRAP_CONTENT</code></strong>，是的话表示该视图可能是个 Dialog 或者是 Dialog 主题的 Activity</p>
+<p>如果是 Dialog 类型的视图，Android 不希望它充满屏幕，因此，视图的宽度将会从 <strong><code>屏幕实际宽度</code></strong> 更改为 Dialog 的 <strong><code>系统预设宽度</code></strong> ，然后执行视图的测量工作</p>
+<p><strong>第一次测量完成后，如果该视图期望的宽度比<code>系统预设宽度</code>大，那就用<code>系统预设宽度</code> + <code>屏幕实际宽度</code> / 2算出来的值当做新的宽度要求，再次执行测量工作（<em>比如屏幕实际宽度为100，系统预设宽度为60，新的宽度为(100 + 60) / 2 = 80</em>）</strong></p>
+<p><strong>第二次测量完成后，如果扩容后的宽度大小仍然不满足该视图期望值，Android 系统将不再尝试再次测量，等待第三次的最终测量</strong></p>
+<p><strong>第三次测量执行之前会先判断 <code>goodMeasure</code> 变量的值，只有当 <code>goodMeasure</code> 为 false 的情况下才会执行测量，什么时候值会为 false 呢？两种情况（<em>看代码注释啊喂</em>）：</strong></p>
+<blockquote>
+<ol>
+<li><strong>视图是普通的 Activity，DecorView 宽不为 <code>WRAP_CONTENT</code> 的情况，那么标记为3号的 <code>performMeasure()</code> 方法将会被执行（<em>第一次调用</em>）</strong></li>
+<li><strong>视图是 Dialog 类型，且 Dialog 想要的宽度很大，<code>系统预设宽度</code>不满足，再次扩容以后同样不满足，那么标记为3号的 <code>performMeasure()</code> 方法将会被执行（<em>第三次调用</em>）</strong></li>
+</ol>
+</blockquote>
+<p>在测试中我发现如果把 Activity 设置为 Dialog 主题后，每次 <strong><code>requestLayout()</code></strong> 都会执行3次 <strong><code>performTraversals()</code></strong> 方法，导致同一个调用链也会重复3遍，发生这种情况的原因我暂时不清楚，有了解这块的老哥可以在评论区留言</p>
+<p>我们把数据手动去重以后，会发现去重后的调用链会完全符合 <strong><code>measureHierarchy()</code></strong> 方法中的代码逻辑</p>
+<h3 id="3-window-权重导致多次调用">3、Window 权重导致多次调用</h3>
+<p>在 ViewRootImpl 的 <strong><code>performTraversals()</code></strong> 方法中，还有一种不怎么常见的场景同样会触发执行 <strong><code>onMeasure()</code></strong> 方法，直接来看代码</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+    void performTraversals() {
+        if (lp.horizontalWeight/lp.verticalWeight &gt; 0.0f){///WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
+            measureAgain = true;
+        }
+        if(measureAgain)performMeasure();
+    }
+}
+</code></pre>
+<p>在 <strong><code>performTraversals()</code></strong> 方法中，会检查 <strong><code>WindowManager.LayoutParams</code></strong> 是否设置权重，如果设置了则会重新执行一次测量</p>
+<p>我在源码中全局搜索后，发现只有 Toast 类中会设置 <strong><code>horizontalWeight</code></strong> / <strong><code>verticalWeight</code></strong> 属性，具体代码逻辑我没有深究，感兴趣的同学可以自己点击<a href="http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/widget/Toast.java#415">这里</a>查看源码</p>
+<p>到这里，ViewRootImpl 类中所有发起测量的地方我们都分析完了，<strong><code>performMeasure()</code></strong> 方法在源码中一共有5处调用</p>
+<figure data-type="image" tabindex="7"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/403c162a951a4be2a0c87b81f5f0be51~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_measure_viewrootimpl.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己截图</em></p>
+<p>在 <strong><code>ViewRootImpl#measureHierarchy()</code></strong> 方法中被调用3次：</p>
+<ol>
+<li><strong>在1331行，视图为Dialog 类型时，将视图宽度设置为 Dialog 预置宽度，发起首次测量</strong></li>
+<li><strong>在1344行，视图为 Dialog 类型时，预置宽度不满足视图期望值，扩容宽度后再次发起测量</strong></li>
+<li><strong>在1358行，<code>goodMeasure</code> 变量为 false 的情况下，两种情况：</strong>
+<ol>
+<li><strong>该视图是普通的 Activity，发起第一次测量</strong></li>
+<li><strong>该视图是 Dialog，且 Dialog 想要的宽度很大，预设宽度和扩容宽度均不满足，给它屏幕实际尺寸发起第三次测量</strong></li>
+</ol>
+</li>
+</ol>
+<p>在 <strong><code>ViewRootImpl#performTraversals()</code></strong> 方法中被调用了2次：</p>
+<ol>
+<li><strong>在2024行，每次申请到 Surface 以后，发起一次测量</strong></li>
+<li><strong>在2050行，为 Window 设置权重时，再次发起一次测量</strong></li>
+</ol>
+<p><em>注：Android 不同版本代码行数也不同，笔者源码环境是：<a href="http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/ViewRootImpl.java">Android 7.0</a></em></p>
+<h3 id="4-由-viewgroup-自身发起调用">4、由 ViewGroup 自身发起调用</h3>
+<p>除了 ViewRootImpl 入口处会发起多次调用外，各个 ViewGroup 自身的业务逻辑同样会导致 View 的 <strong><code>onMeasure()</code></strong> 方法被多次调用</p>
+<p>这部分内容我们可以去看缘佬在<a href="https://www.wanandroid.com/wenda/show/17920"> 玩 Android 每日一问 onMeasure()多次执行原因？</a>这个问题下的回答</p>
+<p>搬一部分缘佬的回答：<strong><code>onMeasure</code> 方法的回调次数，主要取决于它所在的容器的 <code>onMeasure</code> 逻辑，搭配不同 ViewGroup 和设置不同属性都会有影响</strong></p>
+<p>比如 LinearLayout 在设置权重属性后就会多执行一次测量流程，在整个测量过程中，LinearLayout 最少会经历1次测量，最多会经历3次</p>
+<p>所以由 ViewGroup 自身发起调用次数很难有一个标准、统一的答案，我们这里就不展开讨论了</p>
+<h1 id="二-布局阶段">二、布局阶段</h1>
+<p>最难的测量任务在上一章节已经结束了，接下来的内容会轻松很多</p>
+<p>如果说测量阶段的学习难度是100分的话，那布局阶段可以直接降一个数量级，降到10分（10分我都觉得高了）</p>
+<p>布局阶段的任务量主要是在 ViewGroup 一侧，子 View 不参与布局过程，父视图负责把子 View 们按照LayoutParams 规则摆放好</p>
+<figure data-type="image" tabindex="8"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f90054735fe04ff5a45be75c2bebb85b~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_layout_process.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<h2 id="再谈-layoutparams">再谈 LayoutParams</h2>
+<p>在 ViewGroup 的测量阶段我们认识了 LayoutParams 和 MarginLayoutParams，这里再来简单复习一下：</p>
+<p><strong>LayoutParams 是 ViewGroup 的内部类，里面有 <code>width</code> / <code>height</code> 两个属性，用来描述一个 View 的宽高</strong></p>
+<p><strong>MarginLayoutParams 同样是 ViewGroup 的内部类，继承自LayoutParams，增加了上下左右四个方向的 <code>margin</code> 属性</strong></p>
+<p>LayoutParams 是每个 ViewGroup 能够正确摆放子视图的重要依据，除了Android 为 ViewGroup 提供的这两个默认的 LayoutParams 外，每个 ViewGroup 也都会重写一个属于自己的 LayoutParams：</p>
+<blockquote>
+<ul>
+<li><strong>FrameLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 <code>gravity</code> 属性</strong></li>
+<li><strong>LinearLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 <code>weight</code>、<code>gravity</code> 等属性</strong></li>
+<li><strong>RelativeLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 <code>above</code>、<code>below</code>、<code>alignXxx</code>、<code>toXxxOf</code> 等属性</strong></li>
+<li><strong>GridLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 <code>row</code>、<code>column</code>、<code>gravity</code> 等属性</strong></li>
+</ul>
+</blockquote>
+<p><strong>从几个常用布局的 LayoutParams 可以看到，凡是支持设置 <code>margin</code> 属性的都会选择继承自 MarginLayoutParams</strong></p>
+<p>想要了解某个 ViewGroup 支持哪些属性，我们可以在 xml 布局文件中直接点击 <strong><code>layot_xx</code></strong> 属性跳转到 <strong><code>attrs.xml</code></strong> 文件，在 <strong><code>attrs.xml</code></strong> 文件中，保存着所有 Android 官方控件支持的属性列表</p>
+<h2 id="viewgroup-的布局过程">ViewGroup 的布局过程</h2>
+<p><strong><code>layout()</code></strong> 事件的起点和测量事件一样，都在 ViewRootImpl 类中触发，布局流程执行的顺序也和测量流程相同，以 DecorView 作为 View 多叉树的根节点，深度优先遍历整棵树</p>
+<p>来看入口函数</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        if(发起requestLayout请求){
+            performLayout();
+        }
+    }
+    void performLayout(){
+        mView.layout(mView.getMeasuredWidth(), mView.getMeasuredHeight());//以DecorView的宽高作为起始坐标
+    }
+}
+</code></pre>
+<p>ViewRootImpl 中判断是否有任一 View 发起过 <strong><code>requestLayout()</code></strong> 请求，有的话执行 <strong><code>performLayout()</code></strong> 方法，从 DecorView 开始向下分发 <strong><code>layout()</code></strong> 事件</p>
+<p>接着看 ViewGroup 类收到 <strong><code>layout()</code></strong> 事件后的处理逻辑</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+
+  	//View.java中的逻辑，被我挪到这了
+    void layout(int l, int t, int r, int b){
+        setFrame();
+        if(该视图执行了requestLayout()请求，或者视图的位置发生变化){
+            onLayout();
+        }
+    }
+    
+    boolean setFrame(int left, int top, int right, int bottom) {
+        //如果视图位置发生变化，保存新的上下左右坐标点位置
+    }
+
+    abstract void onLayout(boolean changed,int l, int t, int r, int b);
+}
+</code></pre>
+<p>ViewRootImpl 在向下分发布局事件的过程中，会通知到每个 View 的 <strong><code>layout()</code></strong> 方法，所以在 <strong><code>layout()</code></strong> 方法中，会先判断自己有没有发起过 <strong><code>requestLayout()</code></strong> 请求，没有发起请求说明不需要更新，就不执行 <strong><code>onLayout()</code></strong> 方法了</p>
+<p><strong>如果自己调用过 <code>requestLayout()</code> 请求，或者视图的位置发生变化，会将新的位置信息保存下来，然后调用自身的 <code>onLayout()</code> 方法执行布局</strong></p>
+<p>在 ViewGroup 中，<strong><code>onLayout()</code></strong> 方法是由 <strong><code>abstract</code></strong> 关键字修饰的空方法，这表示 Android 要求所有继承 ViewGroup 的类必须自行实现 <strong><code>onLayout()</code></strong> 方法</p>
+<p>到这里，对于 Android 系统来说，整个布局流程已经执行完成了（<em>开头说的布局很简单没骗你吧</em>），接下来调用的 <strong><code>onLayout()</code></strong> 方法是各个 ViewGroup 自身的业务逻辑</p>
+<h2 id="手写一个斜着的线性布局">手写一个斜着的线性布局</h2>
+<p>布局流程过于简单，接下来我准备手写一个可以斜着摆放子 View 的 <strong><code>线性布局</code></strong> ，在一步步实现功能的过程中理解布局阶段在三部曲中的意义</p>
+<p>先看效果</p>
+<figure data-type="image" tabindex="9"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/73050395ff234ee99746d603cf7863a2~tplv-k3u1fbpfcp-watermark.image?" alt="android_graphic_v4_layout_slant.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己录的</em></p>
+<p>动图演示的是一个纵向居中排列的 <strong><code>线性布局</code></strong> ，容器内包含5个 TextView 和 1个 ImageView，点击“ <strong><code>启用倾斜属性</code></strong> ”按钮后，ViewGroup 会按照一定的偏移量重新布局，把容器内所有的子 View 以左上到右下对角线的方式斜着摆放</p>
+<p>SlantLinearLayout 实现的功能非常简单，代码量也不多，关键代码只有3行：</p>
+<pre><code class="language-java">class SlantLinearLayout extends LinearLayout {
+
+    void onLayout(boolean changed, int l, int t, int r, int b) {
+        for (int i = 0; i &lt; getChildCount(); i++) {
+           int childLeft = (childSpace - childWidth) / 2;//根据父视图的padding和子View的margin、自身测量的宽高，计算每个子View起始位置
+           int childTop += lp.topMargin;//起始位置加上子View设定的顶部距离
+           int childOffset = offset * i - (count - i - 1) * offset;//如果用户启用倾斜属性，那么计算每个子View在原先的基础上的偏移量
+           
+           child.layout(left, top, left + width, top + height);//通知子View执行布局
+        }
+    }
+}
+</code></pre>
+<p>SlantLinearLayout 的自身宽高和子 View 们的宽高都在测量阶段就已经确定下来了，所以我们直接根据测量的结果来计算每个子 View 所在的位置</p>
+<ul>
+<li>
+<p><strong><code>childTop</code> 表示每个 View 距离顶部的值，由于容器是纵向的线性排列，所以在确定了第一个距离顶部的高度后，接下来每次累加子 View 自身的高度作为下一个子 View 的起始高度就行了</strong></p>
+</li>
+<li>
+<p><strong><code>childLeft</code> 表示每个 View 距离左边的值，由于每个 View 宽度都不一样，所以 <code>childLeft</code> 要动态计算</strong></p>
+</li>
+<li>
+<p><strong><code>childOffset</code> 表示每个 View 距离左边的偏移量，如果用户启用倾斜属性，那么计算每个子 View 时需要在原先的基础上的加上设定的偏移量</strong></p>
+</li>
+</ul>
+<p>SlantLinearLayout 的布局过程就是在不停的计算这3个变量的值，然后调用子 View 的 <strong><code>layout()</code></strong> 方法，将计算得到的上下左右位置信息（屏幕坐标系的绝对值）传递给子 View，点击<a href="https://github.com/yibaoshan/Blackboard/blob/master/Blog/src/main/java/com/android/blog/android_view/demo/v4/SlantLinearLayout.java">[这里]</a>查看源码</p>
+<p>布局阶段结束后，开发者可以调用 <strong><code>getWidth()</code></strong> / <strong><code>getHeight()</code></strong> 方法来获取视图的宽高</p>
+<h1 id="三-绘制阶段">三、绘制阶段</h1>
+<p>绘制流程和之前的测量/布局相比会显得有些特殊，体现在两个方面</p>
+<p><strong>一是绘制流程执行的顺序，测量和布局阶段都是先执行子 View 再执行 ViewGroup 自身，而绘制是先执行 ViewGroup 绘制流程，再执行子 View 的绘制流程</strong></p>
+<p><strong>二是绘制流程涉及到其他硬件（GPU），启用硬件加速和关闭硬件加速方法走的是两条完全不同的路线，这就会导致绘制阶段的调用链要更复杂一些，在后续分析方法调用的时候要有心理准备</strong></p>
+<p>按照惯例，先来看绘制流程的入口：</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        performDraw();
+    }
+
+    void performDraw(){
+        draw();
+    }
+
+    void draw() {
+        if(是否启用硬件绘制) ThreadedRenderer.draw(mView);
+        else drawSoftware();
+    }
+}
+</code></pre>
+<p>依旧是 ViewRootImpl 作为绘制事件的最初发起者，经过 <strong><code>performDraw()</code></strong> 转发后，最终由 <strong><code>draw()</code></strong> 来执行绘制事件的分发</p>
+<p>在 <strong><code>draw()</code></strong> 方法中，先判断应用是否了启用硬件加速，如果启用硬件加速的话就走 <strong><code>ThreadedRenderer#draw()</code></strong> 方法</p>
+<p>如果没有启用硬件加速，调用 <strong><code>drawSoftware()</code></strong> 方法执行绘制事件分发</p>
+<p>我们先来看没有启用硬件加速的情况</p>
+<h2 id="viewgroup-的绘制过程">ViewGroup 的绘制过程</h2>
+<p>本章节的开头就提到了绘制流程的执行顺序问题，接下来我们就一起来看看 <strong><code>ViewGroup#draw()</code></strong> 方法的实现，从源码中找答案</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+
+    void draw(Canvas canvas) {
+        drawBackground();//先画背景
+        onDraw(canvas);//不管是View还是ViewGroup，先把自己画出来
+        dispatchDraw(canvas);//通知子视图执行绘制，如果是视图是View，这个方法默认为空，只有ViewGroup有实现
+        onDrawForeground(canvas);//最后画前景
+    }
+    
+    void dispatchDraw(){
+        for (int i = 0; i &lt; childrenCount; i++) {
+            draw();//简化过的路径
+        }
+    }
+}
+</code></pre>
+<p>ViewGroup 继承自 View ，所以我把 <strong><code>View#draw()</code></strong> 方法中的逻辑挪到了在 ViewGroup 中，在 <strong><code>ViewGroup#draw()</code></strong> 方法中一共完成了4件事：</p>
+<blockquote>
+<ol>
+<li><strong>调用 <code>drawBackground()</code> 方法画 ViewGroup 的背景</strong></li>
+<li><strong>调用自身的 <code>onDraw()</code> 方法执行 Canvas 绘图逻辑</strong></li>
+<li><strong>调用 <code>dispatchDraw()</code> 通知子 View 执行 <code>draw()</code></strong></li>
+<li><strong>调用 <code>onDrawForeground()</code> 方法画视图的前景</strong></li>
+</ol>
+</blockquote>
+<p>第1步和第4步的画背景/前景的方法实现我们这里就不展开了（但是方法执行顺序我们一定要记住），重点关注第2步和第3步</p>
+<p>在第2步中，ViewGroup 会先执行自己的 <strong><code>onDraw()</code></strong> 方法执行绘图，之后才会执行第3步调用 <strong><code>dispatchDraw()</code></strong> 方法通知子 View 执行绘制流程</p>
+<p><strong>在 Android 系统中，先绘制的内容会被后绘制的内容覆盖掉，所以我们在自定义 View / ViewGroup 的时，了解绘制的前后调用顺序非常重要！</strong></p>
+<h2 id="view-的绘制过程">View 的绘制过程</h2>
+<p>View 的绘制流程和 ViewGroup 的绘制流程几乎一模一样，唯一的区别是 View 中的 <strong><code>dispatchDraw()</code></strong> 是空实现，因为它没有子视图</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/View.java
+class View {
+  
+    void draw(Canvas canvas) {
+        drawBackground();//先画背景
+        onDraw(canvas);//不管是View还是ViewGroup，先把自己画出来
+        dispatchDraw(canvas);//空方法
+        onDrawForeground(canvas);//最后画前景
+    }
+    
+    void dispatchDraw();//空方法
+}
+</code></pre>
+<p>View 的绘制流程其实也是这4个步骤，只不过 <strong><code>dispatchDraw()</code></strong> 是方法罢了，没有实际作用</p>
+<p>到这里，整个绘制流程已经执行完成了，接下来调用的 <strong><code>onDraw()</code></strong> 方法是各个 View 自身的业务逻辑</p>
+<p>Android 通常在 <strong><code>onDraw()</code></strong> 方法中会执行绘图操作，但当我们选择开启硬件加速之后，实际的绘制操作就不在 <strong><code>onDraw()</code></strong> 方法中执行了，接着往下看</p>
+<h2 id="启用硬件加速">启用硬件加速</h2>
+<p>Android 4.0 以后对所有应用程序都默认开启硬件加速，再加上现在的 GPU 驱动对绘图指令支持的非常全面，所以，在绝大多数情况下，应用都是走硬件绘制这条路线的</p>
+<p>启用硬件加速后，绘制的入口就会发生变化，主要逻辑在 ThreadedRenderer 类，它的任务是收集开发者在 <strong><code>onDraw()</code></strong> 方法中调用的绘制指令，然后启用 RenderThread 线程，在渲染线程中再调用 GPU 执行真正的绘图操作</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/ThreadedRenderer.java
+class ThreadedRenderer {
+
+    void draw(DecorView view){
+      	view.updateDisplayListIfDirty();//经过精简后的方法调用，直接调用View记录绘图指令
+        int syncResult = nSyncAndDrawFrame();//切换到render thread 执行真正的绘图指令！
+    }
+
+}
+</code></pre>
+<p>ThreadedRenderer 类中的 <strong><code>draw()</code></strong> 方法一共完成了两件事：</p>
+<blockquote>
+<ol>
+<li><strong>调用 View 的 <code>updateDisplayListIfDirty()</code> 方法，收集绘制指令</strong></li>
+<li><strong>调用 <code>nSyncAndDrawFrame()</code> 方法，将绘图指令同步给 RenderThread 线程去执行</strong></li>
+</ol>
+</blockquote>
+<p>渲染线程的绘图工作我们暂时不关心，本小节我们需要了解的是 <strong><code>View#updateDisplayListIfDirty()</code></strong> 方法是如何收集绘制指令的，来看 View 的源码：</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/view/View.java
+class View {
+
+    RenderNode updateDisplayListIfDirty(){
+        RenderNode renderNode;
+        DisplayListCanvas canvas = renderNode.start();//开始记录绘制节点
+        draw(canvas);//执行常规的draw阶段，注意这里使用的canvas类型是DisplayListCanvas
+        renderNode.end();//View 树遍历完成，结束记录
+        return renderNode;//将记录的节点返回给 ThreadedRenderer.java
+    }
+
+}
+</code></pre>
+<p>在 View 的 <strong><code>updateDisplayListIfDirty()</code></strong> 方法中，首先调用了 <strong><code>RenderNode#start()</code></strong> 方法获取一个 DisplayListCanvas 对象，并同时开始记录绘制指令</p>
+<p>接着调用 View 自身的 <strong><code>draw()</code></strong> 方法执行常规的绘制流程（<em>注意这里使用的 Canvas 类型是 DisplayListCanvas</em>），<strong><code>draw()</code></strong> 方法结束以后，将收集到的绘图指令返回给 ThreadedRenderer 执行实际的绘图操作</p>
+<p><strong>其中，DisplayListCanvas 对象是硬件绘制中最重要的知识点！！！注意看接下来的分析</strong></p>
+<pre><code class="language-c++">/frameworks/base/libs/hwui/DisplayListCanvas.cpp
+class DisplayListCanvas {
+
+    //以画圈指令为例，当开发者调用Canvas.drawCircle()方法绘图时，这个指令实际上被转发到addDrawOp()保存了起来
+    void DisplayListCanvas::drawCircle(float x, float y, float radius, const SkPaint&amp; paint) {
+        addDrawOp(new (alloc()) DrawCircleOp(x, y, radius, refPaint(&amp;paint)));
+    }
+
+    size_t DisplayListCanvas::addDrawOp(DrawOp* op) {
+        //保存指令，等待切换到 RenderThread 渲染线程时再取出执行
+    }
+
+}
+</code></pre>
+<p><strong>DisplayListCanvas 继承自 Canvas ，当我们使用 DisplayListCanvas 进行一系列绘图操作时，这些绘图指令会通过重定向的方式保存到 DisplayList 集合中，并不会实际执行</strong></p>
+<p>比如上面的代码块演示了普通的画圈指令，当我们调用 <strong><code>Canvas#drawCircle()</code></strong> 方法画圈时，这个指令实际上被转发到 <strong><code>addDrawOp()</code></strong> 方法保存了起来，直到 ThreadedRenderer 对象调用了 <strong><code>nSyncAndDrawFrame()</code></strong> 方法后才真正得到执行</p>
+<p><strong>总结一下，应用启用硬件加速以后，<code>onDraw()</code> 方法中的指令将不再被执行，而是被收集到 DisplayList 集合中，等到所有需要绘制的 View 的 <code>draw()</code> 方法执行结束后，这些指令将会被同步到 RenderThread 渲染线程执行真正的绘图工作</strong></p>
+<blockquote>
+<p><em>ps：启用硬件加速和关闭硬件加速对于开发者来说是无感的，<strong><code>onDraw()</code></strong> 方法的收集工作依旧是在 UI  线程中执行，代码写的垃该卡还是会卡</em></p>
+</blockquote>
+<h1 id="四-结语">四、结语</h1>
+<p>本篇文章介绍了自定义 View / ViewGroup 最重要的三个流程：测量、布局、绘制</p>
+<p><strong>对于测量阶段，我们需要理解三种 MeasureSpec 的含义、ChildView MeasureSpec 的默认生成规则，以及了解 <code>onMeasure()</code> 方法会执行多次的原因</strong></p>
+<p><strong>对于布局阶段，我们需要了解布局阶段在整个绘制流程中的作用以及 LayoutParams 对于 ViewGroup 的意义</strong></p>
+<p><strong>对于绘制阶段，我们需要了解 View / ViewGroup 的绘制顺序，以及当应用启用硬件加速后 Android 系统都做了些什么</strong></p>
+<p>最后，自定义 View 需要掌握一些基础的 Canvas API，出于篇幅考虑这部分内容不再展开讨论，有需要的同学可以查看 <a href="https://www.gcssloop.com/">GcsSloop</a> 的<a href="https://www.gcssloop.com/category/customview.html">[Android自定义View系列]</a>文章</p>
+<p>本篇文章到这里就全部结束了，希望能对大家有帮助</p>
+<p><strong>全文完</strong></p>
+<h1 id="五-参考资料">五、参考资料</h1>
+<ul>
+<li><a href="https://book.douban.com/subject/26599538/">《Android开发艺术探索》- 任玉刚</a></li>
+<li><a href="https://www.viseator.com/2017/03/10/android_view_onMeasure/">Android measure过程 - 吴迪</a></li>
+<li><a href="https://www.jianshu.com/p/5a71014e7b1b">Android View的绘制流程 - Kelin</a></li>
+<li><a href="https://juejin.cn/post/6984417565279797262">View的测量布局绘制过程 - 奔波儿灞取经</a></li>
+<li><a href="https://www.wanandroid.com/wenda/show/17920">玩Android 每日一问 | onMeasure()多次执行原因？</a></li>
+<li><a href="https://www.wanandroid.com/wenda/show/8613">玩Android 每日一问 详细的描述下自定义 View 测量时 MesureSpec.UNSPECIFIED</a></li>
+<li><a href="https://www.wanandroid.com/wenda/show/12489">玩Android 每日一问 | 自定义控件测量模式真的和 match_parent，wrap_content 一一对应吗？</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-graphics-system/" class="post-title gt-a-link">
+                    Android图形系统（三）系统篇：渲染/合成的底层原理浅析
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

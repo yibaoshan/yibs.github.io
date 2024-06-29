@@ -1,0 +1,215 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>读书笔记：穿越计算机的迷雾（下） | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    读书笔记：穿越计算机的迷雾（下）
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-11-10 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/natter/" class="post-tags">
+                            # 闲聊
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p>&quot;好记性比如烂笔头&quot;，读书笔记系列是为了记录自己的读书心得，文章内容一部分是摘抄原文，一部分是自己的理解和总结</p>
+<p>本篇文章记录的是，来自李忠老师的《穿越计算机的迷雾》第二版</p>
+<h3 id="一-写在前面">一、写在前面</h3>
+<p>在上一篇文章中，我们学习了二进制怎么做加法、一个简单的全加器电路、电报和继电器的发明。</p>
+<p>其中，继电器是我们需要关注的重点，计算机能够被创造出来，继电器可以说是最大的功臣</p>
+<p>本篇文章主要介绍逻辑门电路，以及各种触发器，目标是做出一个简单的 CPU，大致路线如下：</p>
+<ul>
+<li>用继电器制作逻辑门（与或非）电路</li>
+<li>用非门电路制作振荡器</li>
+<li>用或非门/与非门制作 RS 触发器、D 触发器、上升沿 D 触发器</li>
+<li>用上升沿 D 触发器制作寄存器</li>
+<li>制作传输门电路、加法器电路、控制器电路</li>
+</ul>
+<p>看起来内容很容，实际上，也是真的很多~</p>
+<p>多的我懒癌都犯了，不想写本篇文章了，如何制作 CPU 可以看 BIT祝威 写的文章</p>
+<ul>
+<li><a href="https://www.cnblogs.com/bitzhuwei/p/from_relay_to_tiny_cpu.html">继电器是如何成为CPU的（一） - BIT祝威</a></li>
+<li><a href="https://www.cnblogs.com/bitzhuwei/p/from_relay_to_tiny_CPU2.html">继电器是如何成为CPU的（二） - BIT祝威</a></li>
+</ul>
+<p>再结合北京大学《计算机组成》公开课中的第五、七、八章视频，计组部分差不多就可以翻篇了</p>
+<p>搞定，收工</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/book-notes-computers-lizhong-1/" class="post-title gt-a-link">
+                    读书笔记：穿越计算机的迷雾（上）
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

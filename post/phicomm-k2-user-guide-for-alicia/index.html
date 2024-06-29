@@ -1,0 +1,237 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>写给马总的翻墙教程 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    写给马总的翻墙教程
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-11-20 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>写给马总的翻墙教程</p>
+<h2 id="一-准备工作">一、准备工作</h2>
+<p>在教程开始之前，请先确认路由器是否能正常工作：</p>
+<ol>
+<li><strong>检查路由器是否接入电源</strong></li>
+<li><strong>检查路由器是否插入网线，公司的网口接入到路由器的WAN口（黄颜色的口）</strong></li>
+<li><strong>电脑连接WiFi，打开浏览器访问百度</strong></li>
+</ol>
+<p>如果连百度都打不开，那先去找运维检查网络问题，可以访问百度但无法访问谷歌，那接着往下看</p>
+<h2 id="二-老毛子固件你的路由器">二、老毛子固件（你的路由器）</h2>
+<h3 id="1-登录管理后台">1、登录管理后台</h3>
+<p>打开浏览器输入：<a href="">my.router</a>，在登录弹窗输入用户名和密码</p>
+<figure data-type="image" tabindex="1"><img src="https://yibaoshan.github.io//post-images/1660902880639.jpg" alt="" loading="lazy"></figure>
+<p>账户名是：<strong>admin</strong>，密码是你的电脑开机密码</p>
+<p>登录成功后你将看到下面的页面</p>
+<figure data-type="image" tabindex="2"><img src="https://yibaoshan.github.io//post-images/1660902888306.jpg" alt="" loading="lazy"></figure>
+<h3 id="2-更新节点订阅">2、更新节点订阅</h3>
+<p>点击左侧菜单中的<code>ShadowSocks</code>选项，进入到管理页面，紧接着点击页面上方的&quot;<code>SS节点</code>按钮切换到第二个Tab页</p>
+<figure data-type="image" tabindex="3"><img src="https://yibaoshan.github.io//post-images/1660902895987.jpg" alt="" loading="lazy"></figure>
+<p>接下来我们按截图中的标号一步步执行</p>
+<ol>
+<li>
+<p>检查插件开关，保持ShadowSocks处于开启状态</p>
+</li>
+<li>
+<p>点击右边的&quot;订阅&quot;按钮，此时页面会弹出<code>你确定要执行 【更新订阅】 按钮功能吗？</code>的弹框，点击确认，订阅过程大概5~10s</p>
+<blockquote>
+<p>正常情况下，<code>ssr_服务器订阅</code>的输入框内是有链接地址的（如果没有马上联系我）</p>
+</blockquote>
+</li>
+<li>
+<p>点击页面绿色的&quot;ping&quot;按钮对所有节点进行测速，此时页面会弹出<code>你确定要执行 ping 按钮功能吗？</code>的弹窗，点击确认，测速过程大概需要30~60s</p>
+</li>
+</ol>
+<h3 id="3-选择节点">3、选择节点</h3>
+<p>同样还是在<code>SS节点</code>Tab页中，向下滚动查看节点列表，随便选中一个没有标记为失效的节点</p>
+<p><img src="https://yibaoshan.github.io//post-images/1660902903792.jpg" alt="" loading="lazy"><img src="/Users/bob/Desktop/step4.jpg" alt="step4" loading="lazy"></p>
+<p>在上面的截图中，最后一个<code>香港5 [x1.0-Netflix]</code>标记为失效了，不要选它</p>
+<p>另外，根据我的经验，选择日本的节点挂的概率小一点，节点能使用的时间会久一些（可能大家都不喜欢日本？）</p>
+<p>选中节点以后，点击页面上的<code>应用主SS</code>按钮，然后再选一个节点当做备用节点，点击页面上的<code>应用备SS</code>按钮</p>
+<p>接下来是最重要的一步，点击页面中的<code>应用本页面设置</code>按钮进行保存，将当前的工作节点修改为刚刚选中的节点，点击保存按钮后等待处理完成</p>
+<h3 id="4-切换工作模式">4、切换工作模式</h3>
+<p>点击第一个Tab栏切换到<code>SS配置</code>页面</p>
+<figure data-type="image" tabindex="4"><img src="https://yibaoshan.github.io//post-images/1660902915393.jpg" alt="" loading="lazy"></figure>
+<p>其他参数不动管，重点关注<code>代理类型</code>和<code>工作模式</code></p>
+<p><code>代理类型</code>设置为SSR，<code>工作模式</code>设置为白名单，按照图片中的配置就行了</p>
+<p>最后一步，把页面拉到底，点击页面中的<code>应用本页面设置</code>按钮进行保存</p>
+<p>页面显示完成后就可以愉快的翻墙啦~</p>
+<h2 id="三-梅林固件家里的路由器">三、梅林固件（家里的路由器）</h2>
+<p>如果家里的节点也挂了，或者你想换个国家看奈飞，换节点的流程和你自己的路由器步骤差不多</p>
+<p>只不过由于固件系统不同，页面操作上稍微有点区别，等我以后有时间补充一下详细的操作步骤</p>
+<h2 id="四-特殊情况所有节点都不能用">四、特殊情况：所有节点都不能用？</h2>
+<p>机场挂了、我没续费、订阅地址发生变化等原因有可能导致所有节点都不能用</p>
+<p>如果发生这种情况直接联系我就可以了，不要自己瞎折腾，去爱优腾找点综艺看看，爱你呦</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

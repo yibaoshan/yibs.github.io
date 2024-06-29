@@ -1,0 +1,409 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>读书笔记：十天学会51单片机 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    读书笔记：十天学会51单片机
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-11-15 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/natter/" class="post-tags">
+                            # 闲聊
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7166264413652008997">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<p>&quot;好记性不如烂笔头&quot;，读书笔记系列是为了记录自己的读书心得，文章内容一部分是摘抄原文，一部分是自己的理解和总结</p>
+<p>本篇文章记录的是，来自郭天祥老师的《十天学会51单片机》视频课</p>
+<h1 id="一-写在前面">一、写在前面</h1>
+<p>前段时间我在网上买了块 51 单片机开发板</p>
+<p>接下来的两周，我每天下班回到家的第一件事就是，跟着郭天祥老师的《十天学会51单片机》视频鼓捣一会儿，那阵子在我们家天天都能听到<code>蜂鸣器</code>滴滴滴~滴滴滴的声音</p>
+<p>我当时买开发版的初衷是想了解：<strong>单片机是如何执行代码的？</strong></p>
+<p>了解单片机的执行过程，对下一阶段（操作系统）的学习有很大的帮助。因为操作系统最重要的任务之一，就是管理 <strong>CPU</strong> 执行多任务</p>
+<p>但是，直到我能控制<code>8位数码管</code>显示数字以后，我才意识到，哦~ 原来这是偏实践类的课程，理论知识讲的比较少，这和我原定的目标相差甚远。</p>
+<p>于是，后续课程的<code>串口</code>、<code>液晶屏</code>啥的我就没有继续学了，在网上查了单片机原理作为本节课的补充。</p>
+<p>本篇文章共包含两部分内容：</p>
+<ul>
+<li><strong>一是课程简介，介绍郭天祥老师的《十天学会51单片机》每小讲的课程内容</strong></li>
+<li><strong>二是课程总结，主要是想聊聊我个人非常疑惑的一个问题，单片机是如何执行代码的？</strong></li>
+</ul>
+<p>接下来，我们先跟随郭天祥老师的脚步，一起来学习怎么控制单片机上的硬件</p>
+<h1 id="二-十天学会51单片机">二、十天学会51单片机</h1>
+<p>郭天祥老师的《十天学会51单片机》课程一共有13讲，每一讲的内容都是基于配套的 <strong>TX-1C</strong> 开发板展开</p>
+<p>因此，在介绍课程内容之前，我们有必要先来了解  <strong>TX-1C</strong> 开发板的构成</p>
+<figure data-type="image" tabindex="1"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc70d12a3c5948cd9355e2288fb58cd7~tplv-k3u1fbpfcp-watermark.image?" alt="tx_1c.jpg" loading="lazy"></figure>
+<p><em>图片来源：拼夕夕卖家详情页</em></p>
+<p>如图，从左到右分别是<code>发光二极管</code>、<code>1602液晶屏接口</code>和<code>六位数码管</code>，整块开发版的学习要点如下：</p>
+<ul>
+<li><strong>了解最小系统必要条件：电源、晶振、复位电路</strong></li>
+<li><strong>控制任意I/O口：输出控制电平高低、输入检测电平高低</strong></li>
+<li><strong>掌握<code>定时器</code>的用法</strong></li>
+<li><strong>掌握外部中断、定时器中断、串口中断</strong></li>
+<li><strong>串口通信：单片机与单片机、单片机与计算机通信</strong></li>
+</ul>
+<p>课程内容大致是这些，从目录来看还是比较简单的。当我们具备控制这些简单设备的能力以后，其他复杂的功能原理上也都差不多</p>
+<p>好，接下来我们开始上课</p>
+<h2 id="点亮一个发光管">点亮一个发光管</h2>
+<p>课程第一讲，老师先进行个人介绍，然后讲了单片机的发展史，以及介绍单片机能做什么？</p>
+<p>在课程结尾，老师带领我们点亮了一个<code>发光二极管</code></p>
+<p>点亮代码过于简单，我当时顺手把剩下的7个<code>发光二极管</code>一起点亮了，还做了一个流水灯的效果出来，代码如下：</p>
+<pre><code class="language-c">#include &lt;reg52.h&gt;
+
+sbit led1 = P1^0;
+...// 中间还有 6 个灯，忽略重复代码
+sbit led8 = P1^7;
+
+unsigned int index = 0; //轮到第几个 LED 灯
+unsigned int toggle = 1; // 1 表示开灯 0 表示关灯 
+
+void main(){
+    while(1){
+	perform_once();// 控制发光二极管亮灭
+	delay();// 休眠一段时间，代码实现省略
+    }
+}
+
+void perform_once(){
+    if(index&gt;=8){ // 让每个发光二极管，一轮亮，一轮灭
+	index = 0;
+	toggle = toggle == 1 ? 0 : 1;
+    }
+
+    switch(index){
+	case 0:led1 = toggle;
+	...
+	case 8:led8 = toggle;
+    }
+    index++; // 控制下一个发光二极管
+}
+
+</code></pre>
+<p>编写完上述代码以后，我们在 <strong>Kiel</strong> 中将 <strong>c</strong> 文件编译打包成 <strong>.hex</strong> 文件</p>
+<p>再通过 <strong>STC_ISP</strong> 软件烧录到开发板中，将板子重新上电就可以看到代码运行效果了</p>
+<figure data-type="image" tabindex="2"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2a6eba6947e94e59af6573d2139f245c~tplv-k3u1fbpfcp-watermark.image?" alt="led.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己拍的</em></p>
+<h2 id="控制蜂鸣器发声">控制蜂鸣器发声</h2>
+<p>第二讲老师教了我们怎么控制<code>蜂鸣器</code>发声</p>
+<p>不过，在学习<code>蜂鸣器</code>之前，老师先接着上节课的内容，带我们一起实现了<code>发光二极管</code>的流水灯效果</p>
+<p>唉嘿，流水灯效果我在上节课就搞定了，我可真是个懂得未雨绸缪挖地道的好孩子，骄傲</p>
+<p>讲完流水灯的实现，老师才教了我们怎么去控制<code>蜂鸣器</code>，再往后就是<code>蜂鸣器</code>发声实战了，代码也很简单</p>
+<pre><code class="language-c">#include &lt;reg52.h&gt;
+
+sbit beep = P2^3; //蜂鸣器
+
+void main(){
+    while(1){
+	perform_once();// 让蜂鸣器配合发光二极管，滴滴滴~
+	delay();// 休眠一段时间
+    }
+}
+
+void perform_once(){
+    if(index&gt;=8){ 
+	index = 0;
+	toggle = toggle == 1 ? 0 : 1;
+    }
+	
+    beep = toggle;
+
+}
+</code></pre>
+<p>我这儿偷了个懒，直接在原先控制<code>发光二极管</code>的基础上，增加了控制<code>蜂鸣器</code>的逻辑。让<code>蜂鸣器</code>当背景音乐，配合<code>发光二极管</code>流水灯一起发声</p>
+<p>编写完上述代码以后，我们在 <strong>Kiel</strong> 中将 <strong>c</strong> 文件编译打包成 <strong>.hex</strong> 文件</p>
+<p>再通过 <strong>STC_ISP</strong> 软件烧录到开发板中，将板子重新上电就可以看到代码运行效果了</p>
+<figure data-type="image" tabindex="3"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e5cc88fc7554464b9160486f47770073~tplv-k3u1fbpfcp-watermark.image?" alt="蜂鸣器.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己拍的</em></p>
+<h2 id="数码管-中断原理和定时器">数码管、中断原理和定时器</h2>
+<p>第三讲的内容比较多，有中断、<code>定时器</code>的原理，还有<code>数码管</code>的控制显示，其中<code>数码管</code>的 ‘段选’ 和 ‘位选’ 让我反应了好一会才理解</p>
+<p>接下来又是动手实践环节</p>
+<p>我在之前的代码基础上加了<code>数码管</code>的显示逻辑，另外还单独写了一个检测外部中断的程序，这两段代码都比较长我就不放出来了，直接来看效果</p>
+<figure data-type="image" tabindex="4"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/27f0d8c3896c42b89a6a49198dd1553e~tplv-k3u1fbpfcp-watermark.image?" alt="数码管.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己拍的</em></p>
+<p>在后面的<strong>4 ~ 13</strong>讲的课程中，老师还教了：<code>独立键盘</code>、<code>矩阵键盘</code>的控制，串口通信，<code>1602液晶屏</code>显示，<code>I2C总线</code>等内容</p>
+<p>不过这几节课的视频我全部开2倍速看完的，视频中的代码我也没有动手实践</p>
+<p>开倍速和没有写代码是因为，在上完 1~3 讲以后，我已经学会了：</p>
+<ol>
+<li><strong>如何控制输出电平进而控制发光<code>二极管</code>、<code>蜂鸣器</code></strong></li>
+<li><strong>如何检测输入电平</strong></li>
+<li><strong>如何使用中断、<code>定时器</code></strong></li>
+</ol>
+<p>虽然东西不多，但学习目的已经达到了，再学会控制后面的几个元器件，对我来说意义不是很大</p>
+<p>对剩下课程感兴趣的朋友，可以查看参考资料一栏中 <strong>“十天学会51单片机教程”</strong></p>
+<p>好了，课程简介部分到这里就先结束了</p>
+<p>接下来的时间，我们来聊聊本篇文章中，我最感兴趣的话题：<strong>单片机是如何执行代码的？</strong></p>
+<h1 id="三-单片机是如何执行代码的">三、单片机是如何执行代码的？</h1>
+<p>在之前几节课的实践过程中，不知道大家有没有注意到一个规律</p>
+<p>我们每次写完代码，都需要先用 <strong>Kiel</strong> 软件，将 <strong>c</strong> 文件编译成 <strong>.hex</strong> 文件</p>
+<p>再通过 <strong>STC_ISP</strong> 软件烧录到开发板中，然后板子重新上电，我们就能看到新代码运行的效果了</p>
+<p><strong>为什么简单操作几步就可以让单片机运行我们的新代码呢？</strong></p>
+<p>我们把前后流程捋一下，可以发现上述的操作流程，大致可以分为：<strong>编码</strong>、<strong>编译</strong>、<strong>烧录</strong>、<strong>运行</strong>这四个阶段</p>
+<p>想要了解单片机是怎么运行的，我们就需要知道，这几个阶段各自都做了哪些事情？</p>
+<p>我们先来看第一步，编码阶段</p>
+<h2 id="编码阶段">编码阶段</h2>
+<p>编码阶段指的是把我们人类的想法，转换为编程语言来实现</p>
+<p>比如我想让板子上的第一个<code>发光二极管</code>亮起来，用代码实现的话可以这样写：</p>
+<pre><code class="language-c">#include &lt;reg52.h&gt;
+
+sbit led1 = P1^0;
+
+void main(){
+    led1 = 0;
+}
+
+</code></pre>
+<p>核心代码就一句话：<strong>'<code>led1 = 0</code>'</strong> ，非常的简单</p>
+<h2 id="编译阶段">编译阶段</h2>
+<p>当我们的需求（<em>点亮第一个<code>二极管</code></em>）用编程语言实现了以后，接下来就是要把这段逻辑代码，翻译给单片机去执行</p>
+<p><strong>怎么翻译呢？</strong></p>
+<p>这就是编译器做的事情，大致流程是，先把源代码进行<code>语法解析</code>，然后再转化为各个平台的<code>机器代码</code></p>
+<p>具体到 51 单片机，<strong>Kiel</strong> 集成了编译器的功能，我们写完代码后，将工程的目标指令集设置为 <strong>MCS-51</strong>，然后就可以一键打包成 <strong>.hex</strong> 可执行文件，等待下一阶段烧录到单片机</p>
+<p>这里有两个比较关键的点，<strong>什么是指令集，以及什么是 hex 文件？</strong></p>
+<p>我们先来看第一点，<strong>什么是指令集？</strong></p>
+<h3 id="1-什么是指令集">1、什么是指令集</h3>
+<p>我们都知道，芯片是由无数个功能不同的电路组合而来，而电路又只能通过开关来控制</p>
+<p>那么，芯片厂商就需要告诉其他人，应该通过什么样的开关组合规则，才来控制这个芯片上不同的电路</p>
+<p><strong>控制芯片的规则，就被称为指令集。</strong></p>
+<p>比如，51单片机使用的是 <strong>MCS-51</strong> 指令集，这套指令集包含了：<strong>数据传送</strong>、<strong>位操作</strong>、<strong>逻辑运算及转移</strong>、<strong>算术运算</strong>、<strong>控制转移</strong>5个大类，共计<strong>111</strong>条指令</p>
+<p>每条指令都是 <code>0101010</code> 这样的 <code>01</code> 组合，一条指令有多少位<code>0</code>和<code>1</code>，要看具体用什么指令</p>
+<p>在51单片机的<strong>111</strong>条指令中，<code>1字节</code>指令共有<strong>49</strong>条，<code>2字节</code>指令共有<strong>45</strong>条，<code>3字节</code>指令共有<strong>17</strong>条</p>
+<p><em>详细的指令集可以查看参考资料</em></p>
+<h3 id="2-什么是-hex-文件">2、什么是 hex 文件</h3>
+<p>至于 <strong>Kiel</strong> 打包生成的 <strong>.hex</strong> 文件，我们可以用文本编辑器打开看看</p>
+<figure data-type="image" tabindex="5"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cafd8c6b2a274c6b972248be8799e0a8~tplv-k3u1fbpfcp-watermark.image?" alt="hex.jpg" loading="lazy"></figure>
+<p><em>图片来源：课程视频截图</em></p>
+<p>其实 <strong>hex</strong> 文件已经是编译过后得到的二进制组合了，里面的内容就是我们用 <strong>C51</strong> 写的业务代码，不过是被转换为一行行<code>0</code>和<code>1</code>，我们看不懂罢了</p>
+<p>至于为什么显示的是十六进制，这是因为文本编辑器是以四个二进制当作一个单位读的，烧录到单片机还是以二进制来执行的</p>
+<h2 id="烧录阶段">烧录阶段</h2>
+<p>在上一步的编译阶段，所有需要执行的指令都已经准备好，保存在 <strong>.hex</strong> 文件中</p>
+<p>接下来，我们只需要使用 <strong>STC-ISP</strong> 软件，把这些二进制数据，传输给单片机的存储单元（<em><strong>EEPROM</strong></em>）就完事了</p>
+<p>烧录的过程和原理我也不是很清楚，我个人是这样理解的，单片机存储单元是由许多电池组成的。烧录电路在碰到 <code>0</code> 时，就对电池放电；碰到 <code>1</code> 时，就对电池充电</p>
+<p>对烧录原理感兴趣的朋友可以查看参考资料列出的，<a href="https://www.cnblogs.com/759222924lele/p/7222916.html">STC 51单片机烧录协议分析</a> 和 <a href="https://www.zhihu.com/question/322309698">单片机为什么能直接烧录程序？</a>这两篇文章</p>
+<h2 id="运行阶段">运行阶段</h2>
+<p>好，经过上一步的烧录后，现在单片机的 <strong>ROM</strong> 存储了是无数个高低电平，等待被执行</p>
+<p>接着，我们按下开发板的电源键，板子上电， <code>PC 寄存器</code>电路默认指向 <code>0000H</code> 地址，通过传输电路，<code>寻址寄存器</code>得到第一条指令地址</p>
+<p>然后，<code>寻址寄存器</code>从 <strong>ROM</strong> 取出第一条指令，传输给<code>指令编码器</code>解析</p>
+<p>51的指令类型前面提过了，一共分为5大类：</p>
+<ol>
+<li><strong>数据传送：内部 RAM 或<code>寄存器</code>之间的数据传送、<code>累加器A</code>与外部 RAM 间的数据传送等等</strong></li>
+<li><strong>位操作：位状态控制、位条件转移等等</strong></li>
+<li><strong>逻辑预算及转移：与、或、亦或、循环移位、<code>累加器</code>清零等等</strong></li>
+<li><strong>算术运算：带/不带进位的加法、带借位的加法、加1剪1、乘除等等</strong></li>
+<li><strong>控制转移：子程序调用与返回、空操作、条件转移等等</strong></li>
+</ol>
+<p><code>指令编码器</code>根据指令类型，调用不同的电路来执行任务。一条指令执行结束后，再次重复上述流程，根据 <code>PC 寄存器</code>指向的下一条指令地址，继续取指执行，永不停歇..</p>
+<p>至此，<strong>编码</strong>、<strong>编译</strong>、<strong>烧录</strong>、<strong>运行</strong>这四个阶段我们都已经分析完成，单片机的运行流程到这里就讲完了。</p>
+<h1 id="四-结语">四、结语</h1>
+<p>在文章的结尾，我们来对本文的两部分内容做个总结</p>
+<p>先说《十天学会51单片机》视频课程</p>
+<p>对于我不熟悉的领域，我的期望通常是讲的越简单，越入门越好</p>
+<p>这一点我觉得《十天学会51单片机》这节课做到了，老师讲的非常好，简单易懂，并且只需要有一点点语言基础就可以直接上手</p>
+<p>但是，课程内容对单片机内部电路介绍的比较少，如果没有模电、数电、计组的基础，全部跟下来可能会觉得有点吃力</p>
+<p>总的来说，郭天祥老师的《十天学会51单片机》课程，更适合已经有理论基础的科班学生上手实践</p>
+<p>如果像我一样，妄想通过这门课来学习《微机原理及接口技术》的同学，可以放弃了，老老实实看书吧</p>
+<p>再来看第二个部分，<strong>单片机是怎么执行代码的？</strong></p>
+<p>我们把单片机的运行流程分为<strong>编码</strong>、<strong>编译</strong>、<strong>烧录</strong>、<strong>运行</strong>四个阶段，每个阶段做的事情在正文里都已经分析过了，我们这里再简单总结一下：</p>
+<ul>
+<li><strong>编码阶段，将业务逻辑解释成代码实现</strong></li>
+<li><strong>编译阶段，将代码解释成目标平台的<code>机器语言</code>，也就是 <code>01</code> 组合</strong></li>
+<li><strong>烧录阶段，把编译结果的 <code>01</code> 组合，传输到机器的存储单元，每个 <code>01</code> 都被存储为高低电平。此阶段是'虚拟世界'转向'物理世界'的转折点</strong></li>
+<li><strong>运行阶段，接下来的事情全部发生在物理电路层面上。在<code>振荡器</code>电路的驱动下，芯片开始取指、译指、执行，根据执行结果，或修改寄存器改变时序电路逻辑，或刷新主存等其他操作，然后继续取指、译指、执行，无限循环，直到断电</strong></li>
+</ul>
+<p>好了，本篇文章到这里就全部结束了。各位大佬如果发现本文有写的不对的地方，还望及时指出，我会第一时间改正，感谢</p>
+<p><strong>全文完</strong></p>
+<h1 id="五-参考资料">五、参考资料</h1>
+<ul>
+<li><a href="https://www.bilibili.com/video/BV1Yk4y1m7my/">十天学会51单片机视频（郭天祥高清完整版）- 小破站</a></li>
+<li><a href="http://www.ecengine.com/download/MCS-51%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%8C%87%E4%BB%A4%E9%9B%86.pdf">MCS-51 汇编语言指令集</a></li>
+<li><a href="https://blog.csdn.net/qq_39400113/article/details/105585924">51单片机（一）单片机发展概述 - 果果小师弟</a></li>
+<li><a href="https://blog.csdn.net/qq_39400113/article/details/105587900">51单片机（二）单片机结构和原理 - 果果小师弟</a></li>
+<li><a href="https://blog.csdn.net/qq_39400113/article/details/105609750">51单片机（三）80C51的指令系统 - 果果小师弟</a></li>
+<li><a href="https://blog.csdn.net/qq_39400113/article/details/105645043">51单片机（四）80C51的程序设计 - 果果小师弟</a></li>
+<li><a href="https://www.zhihu.com/question/322309698">单片机为什么能直接烧录程序？- 知乎</a></li>
+<li><a href="https://www.toutiao.com/article/6389936124517138690/">既生Bin 何生Hex ？- 光豆儿</a></li>
+<li><a href="https://www.cnblogs.com/759222924lele/p/7222916.html">STC 51单片机烧录协议分析 - 电型金刚</a></li>
+<li><a href="https://blog.csdn.net/qq_16038625/article/details/117196792">基于51单片机的多线程操作系统设计 - 卖水果的</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/72615614">宏晶 STC89C52RC 微控制器实用笔记 - Hank</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/157497492">51单片机运行过程 - 清酒与水</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/book-notes-computers-lizhong-2/" class="post-title gt-a-link">
+                    读书笔记：穿越计算机的迷雾（下）
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>简单聊聊指令重排 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    简单聊聊指令重排
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-12-12 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/concurrency/" class="post-tags">
+                            # 并发编程
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p>代码在编译阶段，编译器可能会进行重排序（<em>Java 在编译期字节码是按代码顺序生成的，但 JIT 执行时就不保证顺序了</em>）</p>
+<p>代码在执行阶段，CPU 也可能会重排指令（<em>CPU 的乱序执行，忽略不看</em>）</p>
+<p>比如下面这段代码</p>
+<pre><code class="language-java">int a = a1; // a1 = 1;
+double b = b1; // b1 = 0.1;
+</code></pre>
+<p>Java 的 JIT 在执行时，并不会保证：<strong>对 &quot;a&quot; 内存的写入一定在对 &quot;b1&quot; 内存的读取之前发生</strong></p>
+<p>并且，因为 &quot;<strong>整形</strong>&quot; 和 &quot;<strong>浮点型</strong>&quot; 用的运算器不同，还是可能被重排的</p>
+<h2 id="as-if-serial-规则">as-if-serial 规则</h2>
+<p>as-if-seria<a href="">指令重排</a>l 的意思是，编译器、处理器、JIT 等为了提高并行度，所有的动作(<em>Action</em>)都可以为了优化，而被重排序</p>
+<p>但是，<strong>不管怎么重排序，单个线程的执行结果不能被改变。</strong></p>
+<p>为了遵守 &quot;<strong>as-if-serial</strong>&quot; 语义，编译器和处理器不会对存在 &quot;<strong>数据依赖关系</strong>&quot; 的操作做重排序</p>
+<p>一个硬性规定，忽略</p>
+<h2 id="java-的-happens-before-规则">Java 的 happens-before 规则</h2>
+<p>准确来说是 Java 内存模型中的规则，JSR-133 使用 happens-before 的概念来指定两个操作之间的执行顺序</p>
+<blockquote>
+<p><strong>如果 A happens-before B，那么 Java 内存模型将向程序员保证：A 操作的结果将对 B 可见，且 A 的执行顺序排在 B 之前</strong></p>
+</blockquote>
+<p>至于网上罗列的几条规则，都是根据 Java 内存模型总结出来的，不用刻意去记。重点理解 <strong>volatile</strong> 关键字的作用即可</p>
+<p>详情可以查看 Doug Lea 写给编辑器开发者的文章：<a href="https://gee.cs.oswego.edu/dl/jmm/cookbook.html">The JSR-133 Cookbook for Compiler Writers</a></p>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="http://ifeve.com/doug-lea/">Doug Lea 的中文博客</a></li>
+<li><a href="http://gee.cs.oswego.edu/">Doug Lea 的英文博客</a></li>
+<li><a href="https://v2ex.com/t/746080">关于指令重排序 - V2EX</a></li>
+<li><a href="https://tech.meituan.com/2014/09/23/java-memory-reordering.html">Java内存访问重排序的研究 - 美团技术团队</a></li>
+<li><a href="http://www.broadview.com.cn/article/347">4个你未必知道的内存小知识 MESI协议&amp;NUMA架构</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-graphics-input/" class="post-title gt-a-link">
+                    Android图形系统（五）番外篇：触摸事件详解
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

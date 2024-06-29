@@ -1,0 +1,808 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>漫谈设计模式（二）：结构型模式 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    漫谈设计模式（二）：结构型模式
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-01-09 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/design-pattern/" class="post-tags">
+                            # 设计模式
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7051139976095858725">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<h2 id="一-前言">一、前言</h2>
+<p><code>结构型模式</code>(Structural Pattern)描述如何将类或者对象结合在一起形成更大的结构，就像搭积木，可以通过简单的<code>组合</code>形成复杂的、功能更为强大的结构。</p>
+<figure data-type="image" tabindex="1"><img src="https://yibaoshan.github.io//post-images/1647413434862.jpg" alt="" loading="lazy"></figure>
+<p><code>结构型模式</code>的实现可以分为两种，<code>类结构型模式</code>和<code>对象结构型模式</code>，其中：</p>
+<ul>
+<li><code>类结构型模式</code>关心类的组合，由多个类可以<code>组合</code>成一个更大的系统，在<code>类结构型模式</code>中一般只存在继承关系和接口实现关系。</li>
+<li><code>对象结构型模式</code>关心类与对象的组合，通过<code>关联</code>关系使得在一个类中定义另一个类的实例对象，然后通过该对象调用其方法。根据“<strong>合成复用原则</strong>”，在系统中尽量使用关联关系来替代继承关系，因此大部分<code>结构型模式</code>都是<code>对象结构型模式</code>。</li>
+</ul>
+<p>本文将会介绍几种常见的<code>结构型模式</code>，他们分别是：</p>
+<ol>
+<li><strong>享元模式(Flyweight)</strong></li>
+<li><strong>代理模式(Proxy)</strong></li>
+<li><strong>装饰模式(Decorator)</strong></li>
+<li><strong>适配器模式(Adapter)</strong></li>
+<li><strong>桥接模式(Bridge)</strong></li>
+<li><strong>外观模式(Facade)</strong></li>
+</ol>
+<p>同时，为了更加方便的理解<code>结构型模式</code>的设计思想，本文将加入一个<code>项目阶段</code>的概念：</p>
+<ol>
+<li>开发中，也包含开发前期，一般是代码未发布可以随意更改的阶段</li>
+<li>开发完成，已发布/封装完成，或是没有源码，只能补救的阶段</li>
+</ol>
+<p>不同的开发阶段所能适用的设计模式也不同，在理解设计者的意图时，这一点尤其重要</p>
+<p>另外，本篇文章是笔者个人对<code>结构型模式</code>的理解，由于<code>结构型模式</code>的概念有些抽象(相较于<code>创建型模式</code>)，每个人的理解也不尽相同，因此，若您发现笔者的描述有不准确甚至完全错误的地方，请到<a href="https://github.com/yibaoshan/Blackboard/issues">这里</a>进行反馈，感谢</p>
+<h2 id="二-结构型模式享元模式">二、结构型模式：享元模式</h2>
+<h3 id="1-模式定义">1、模式定义</h3>
+<p><code>享元模式</code>(又称蝇量模式)是对象池的一种实现，它的英文名称叫做Flyweight，代表轻量级的意思。<br>
+<code>享元模式</code>用来尽可能减少内存使用量，它适合用于可能存在大量重复对象的场景，来缓存可共享的对象，达到对象共享、避免创建过多对象的效果，这样一来就可以提升性能，是典型的以空间换时间的设计模式。</p>
+<p><code>享元模式</code>的设计思想比较简单，关于<code>享元模式</code>有<a href="https://blog.csdn.net/wangshihui512/article/details/51453839">争议</a>的一点是：<code>享元模式</code>是否只是对象池的一种实现，如果是，那么原文中提到的需要关注对象的<code>内部状态</code>和<code>外部状态</code>是什么意思？</p>
+<p>换句话说，<code>享元模式</code>和<code>池化</code>技术之间是否可以直接划等号？</p>
+<p>要探讨这个问题，我们先来看一下《设计模式》一书中对<code>享元模式</code>的定义：</p>
+<blockquote>
+<p>A <strong>flyweight</strong> is a shared object that can be used in multiple contexts simultaneously. The flyweight acts as an independent object in each context—it's indistinguishable from an instance of the object that's not shared. Flyweights cannot make assumptions about the context in which they operate. The key concept here is the distinction between <strong>intrinsic</strong> and <strong>extrinsic</strong> state.  <strong>Intrinsic</strong> state is stored in the flyweight; it consists of information that's independent of the flyweight's context, thereby making it sharable.  <strong>Extrinsic</strong> state depends on and varies with the flyweight's context and therefore can't be shared. Client objects are responsible for passing  <strong>extrinsic</strong> state to the flyweight when it needs it.</p>
+<p>—《Design Patterns: Elements of Reusable Object-Oriented Software》</p>
+<p><strong>flyweight</strong>是一个共享对象，它可以同时在多个场景(context)中使用，并且在每个场景中flyweight都可以作为一个独立的对象—这一点与非共享对象的实例没有区别。flyweight不能对它所运行的场景做出任何假设，这里的关键概念是<strong>内部状态</strong>和<strong>外部状态</strong>之间的区别。<strong>内部状态</strong>存储于flyweight中，它包含了独立于flyweight场景的信息，这些信息使得flyweight可以被共享。而<strong>外部状态</strong>取决于flyweight场景，并根据场景而变化，因此不可共享。用户对象负责在必要的时候将<strong>外部状态</strong>传递给flyweight。</p>
+<p>—《设计模式：可复用面向对象软件的基础》机械工业出版社</p>
+</blockquote>
+<p>从这段话的描述可以看出，作者强调<code>享元模式</code>的特点之一是对象的<code>内部状态</code>可变、<code>外部状态</code>不可变且不可被共享。那么什么是对象的<code>内部状态</code>和<code>外部状态</code>？下面我们一起来通过<code>2.2</code>中的代码示例看一看能否找出答案</p>
+<h3 id="2-代码示例">2、代码示例</h3>
+<pre><code class="language-java">/*国家类*/
+public class Country {
+
+    private String countryName;//国家名称
+    private String countryArea;//国土面积
+  	//more..
+
+  	public static Country query(String country){
+      //通过key查询内存/数据库等保存的国家对象
+    }
+}
+
+/*用户信息类*/
+public class UserInfo {
+
+    public Integer age;//用户年龄
+    public String nickname;//昵称
+    public Country country;//国家
+  	//more..
+
+  	public static UserInfo obtain(){
+      //内部维护一个对象缓存池
+    }
+
+}
+
+/*测试类*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        UserInfo sanZ = UserInfo.obtain(18, &quot;张三&quot;, Country.query(&quot;中国&quot;));
+        UserInfo siL = UserInfo.obtain(18, &quot;李四&quot;, Country.query(&quot;中国&quot;));
+        //移民到新加坡养老
+        siL.country = Country.query(&quot;新加坡&quot;);
+    }
+
+}
+
+</code></pre>
+<p>代码示例中只有两个类，<code>用户信息</code>类和<code>国家</code>类，在<code>用户信息</code>类的内部状态中，有一个<code>country</code>属性，<code>country</code>属性对应的<code>国家</code>类中内部维护一组数据，不公开set()方法。当某一个用户更改自身的<code>country</code>属性时，只能通过国家名称重新查询国家对象，这就是所谓享元对象<code>内部属性</code>更改时不影响其<code>外部状态</code>的含义；</p>
+<p>总结一下，<code>享元对象</code>指的是可以被<code>共享</code>的对象，在<code>2.2</code>的示例代码中，<code>用户信息</code>类就是<code>享元对象</code>。由于<code>享元对象</code>可以被共享，其内部属性(姓名、年龄、国家等)可以被重新赋值，这被叫做对象的<code>内部状态</code>；<code>国家</code>类是独立的一个组织，不管<code>用户信息</code>类中的<code>country</code>属性如何更改都不会影响到<code>国家</code>类中的内部数据，<code>国家</code>类就被称为<code>享元对象</code>类的<code>外部状态</code></p>
+<h3 id="3-源码锚点">3、源码锚点</h3>
+<p>在看过了<code>2.2</code>小节的示例之后，我们再回过头来看看<code>Android Message</code>的实现</p>
+<pre><code class="language-java">/*伪代码*/
+public class Message {
+
+    private String val;
+    private Message next;
+
+    private static Message root;
+    private static int size = 0;
+    private static final int MAX_SIZE = 10;
+
+    public static Message obtain() {
+        if (root != null) {
+            //获取链表表头的对象
+            Message temp = root;
+            root = temp.next;
+            temp.next = null;
+            size--;
+            return temp;
+        }
+        return new Message();
+    }
+
+    public String getVal() {
+        return val;
+    }
+
+    public void setVal(String val) {
+        this.val = val;
+    }
+
+    public void recycle() {
+        //回收对象，将属性内容清空
+        this.val = null;
+        //若缓存池还没满，将该对象保存至链表表头位置
+        if (size &lt; MAX_SIZE) {
+            next = root;
+            root = this;
+            size++;
+        }
+    }
+
+}
+</code></pre>
+<p>从代码中可以看到，<code>Message</code>用链表实现了个复用池，回到<code>2.1</code>中的疑问，<code>Android Message</code>的链表复用池的设计思想是能被称为<code>享元模式</code>吗？笔者认为是可以的，只不过<code>Message</code>没有外部状态罢了</p>
+<p>除了<code>Android Message</code>外，Java中还有String常量池，int，float等基础类型的包装类型也都使用了<code>享元模式</code>，感兴趣的朋友可以自行搜索了解</p>
+<h3 id="4-小结">4、小结</h3>
+<p>总结一下，<code>享元模式</code>的设计思想是通过复用对象，以达到节省内存的目的，<code>享元模式</code>适合在以下的场景中使用：</p>
+<ol>
+<li>系统中存在大量的相似对象，可以抽离为外部对象，例如<code>2.2</code>中的<code>国家</code>对象</li>
+<li>需要缓冲池的场景，例如<code>Android Message</code>对象，Java基本类型的包装类</li>
+</ol>
+<p><em>有些书籍/资料将享元模式翻译为<code>蝇量模式</code>，这一点需要注意，<code>享元模式</code>和<code>蝇量模式</code>是同一个</em></p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/flyweight">这里</a></p>
+<h2 id="三-结构型模式代理模式">三、结构型模式：代理模式</h2>
+<h3 id="1-模式定义-2">1、模式定义</h3>
+<p><code>代理模式</code>是指在不改版原始类的情况下，通过新增<code>代理类</code>的方式，来给原始类加入新的功能</p>
+<p>代理模式实现的场景分为两种，<code>外部类</code>和<code>内部类</code>。</p>
+<p><code>外部类</code>一般是在原始类无法进行更改的情况使用，以<code>3.2</code>中的方法耗时统计举例来说，要统计<code>Stack</code>每个方法的耗时，我们可以创建<code>StackProxy</code>类继承自<code>Stack</code>类，然后在<code>StackProxy</code>中调用<code>Stack</code>的方法同时加入耗时统计的代码。</p>
+<p><code>内部类</code>指的是原始类代码可以更改的情况，通常会抽象出统一的接口，<code>实现类</code>和<code>代理类</code>都实现该接口，在<code>代理类</code>中添加逻辑代码；还是以<code>Stack</code>耗时统计为例，我们可以抽象出<code>IStack</code>类，创建<code>Stack</code>类实现<code>IStack</code>接口以完成功能，创建<code>StackProxy</code>类同样实现<code>IStack</code>接口以完成耗时统计逻辑；</p>
+<p><code>代理模式</code>的原理和代码实现都不难掌握，接下来一起来看<code>3.2</code>中的代码示例</p>
+<h3 id="2-代码示例-2">2、代码示例</h3>
+<h4 id="21-内部类的实现">2.1 内部类的实现</h4>
+<pre><code class="language-java">/*统一接口类*/
+public interface IStack {
+
+    void push(int val);
+
+    int pop();
+
+}
+
+/*实现类*/
+public class Stack implements IStack {
+
+    private Node root;
+    private int size = 0;
+
+    @Override
+    public void push(int val) {
+        root = new Node(val, root);
+        size++;
+    }
+
+    @Override
+    public int pop() {
+        if (root != null) {
+            Node temp = root;
+            root = root.next;
+            size--;
+            return temp.val;
+        }
+        throw new EmptyStackException();
+    }
+
+    private static final class Node {
+        int val;
+        Node next;
+        public Node(int val, Node next) {
+            this.val = val;
+            this.next = next;
+        }
+    }
+}
+
+/*代理类*/
+public class StackProxy implements IStack {
+
+    private final IStack stack;
+
+    public StackProxy(IStack stack) {
+        this.stack = stack;
+    }
+
+    @Override
+    public void push(int val) {
+        long start = System.currentTimeMillis();
+        stack.push(val);
+        System.err.println(&quot;push:&quot; + (System.currentTimeMillis() - start));
+    }
+
+    @Override
+    public int pop() {
+        long start = System.currentTimeMillis();
+        int res = stack.pop();
+        System.err.println(&quot;pop:&quot; + (System.currentTimeMillis() - start));
+        return res;
+    }
+
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        IStack stack = new StackProxy(new Stack());
+    }
+
+}
+</code></pre>
+<p>需求是统计<code>Stack</code>中<code>插入</code>和<code>弹出</code>的方法耗时，倘若上述角色只有<code>Stack</code>一个，那么统计耗时就需要耦合在业务代码之中，违背了<code>单一职责原则</code>。这时候我们就可以引入<code>代理模式</code>来解决这个问题，将<code>Stack</code>类分成三个角色(统一接口、实现类、代理类)，将统计逻辑和实际业务解耦，保持实现类的<code>职责单一</code>，通过实现<code>抽象接口</code>来完成代理工作的被称为<code>代理模式</code>的<code>内部类实现</code></p>
+<h4 id="22-外部类的实现">2.2 外部类的实现</h4>
+<pre><code class="language-java">/*代理类*/
+public class StackProxy&lt;E&gt; extends java.util.Stack&lt;E&gt; {
+
+    @Override
+    public E push(E item) {
+        long start = System.currentTimeMillis();
+        E push = super.push(item);
+        System.err.println(&quot;push:&quot; + (System.currentTimeMillis() - start));
+        return push;
+    }
+
+    @Override
+    public synchronized E pop() {
+        long start = System.currentTimeMillis();
+        E pop = super.pop();
+        System.err.println(&quot;pop:&quot; + (System.currentTimeMillis() - start));
+        return pop;
+    }
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        Stack&lt;Integer&gt; stack = new StackProxy&lt;&gt;();
+    }
+
+}
+</code></pre>
+<p>接着上面耗时统计的需求，在此示例中，<code>Stack</code>类是来自<code>java.util</code>包，内部代码不可以进行更改。这种情况便只有创建<code>StackProxy</code>继承<code>java.util.Stack</code>类，再对每个方法都加入耗时统计的代码来完成需求，这种方式被称为<code>代理模式</code>的<code>外部类实现</code></p>
+<h3 id="3-动态代理">3、动态代理</h3>
+<p>在<code>2.1</code>和<code>2.2</code>小节中我们发现，在每个方法中，耗时统计的逻辑代码是类似的，根据能自动绝不手动的开发原则，我们可以使用<code>动态代理</code>来解决这个问题，这也是实际开发中经常使用的。所谓<code>动态代理</code>（Dynamic Proxy），就是我们不事先为每个原始类编写代理类，而是在运行的时候，动态地创建原始类对应的代理类，然后在系统中用代理类替换掉原始类。</p>
+<p>如果您使用的是 Java 语言，实现<code>动态代理</code>就是件很简单的事情，因为 Java 语言本身就已经提供了<code>动态代理</code>的语法。接下来我们看一下如何用Java的<code>动态代理</code>来实现上一小节的功能：</p>
+<pre><code class="language-java">/*动态代理类*/
+public class StackDynamicProxy {
+
+    public Object createProxy(Object proxyObject) {
+        Class[] interfaces = proxyObject.getClass().getInterfaces();
+        DynamicProxyHandler handler = new DynamicProxyHandler(proxyObject);
+        return Proxy.newProxyInstance(proxyObject.getClass().getClassLoader(), interfaces, handler);
+    }
+
+    private static class DynamicProxyHandler implements InvocationHandler {
+
+        private final Object proxyObject;
+
+        public DynamicProxyHandler(Object proxyObject) {
+            this.proxyObject = proxyObject;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            long start = System.currentTimeMillis();
+            Object result = method.invoke(proxyObject, args);
+            System.err.println(method.getName() + &quot;:&quot; + (System.currentTimeMillis() - start));
+            return result;
+        }
+    }
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        StackDynamicProxy proxy = new StackDynamicProxy();
+        IStack stack = (IStack) proxy.createProxy(new Stack());
+    }
+
+}
+</code></pre>
+<h3 id="4-源码锚点">4、源码锚点</h3>
+<p>代理模式在Android源码中的应用，除了有经典的<code>retrofit</code>外，Android Hook、插件化也都使用了<code>代理模式</code>，笔者这里简单介绍一下插件化是如何使用<code>代理模式</code>做到替换Activity的：</p>
+<p>在调用<code>context.startActivity()</code>方法启动<code>Activity</code>时，最终是由<code>Instrumentation</code>类负责创建<code>Activity</code>对象的。那么，我们可以创建代理类来替换掉系统的<code>Instrumentation</code>对象，在监控到启动的是<code>AndroidManifest</code>中占位<code>Activity</code>时，替换成插件中的目标<code>Activity</code>，大致流程如下：</p>
+<ol>
+<li>创建<code>Instrumentation</code>的代理类<code>InstrumentationProxy</code></li>
+</ol>
+<pre><code class="language-java">public class InstrumentationProxy extends Instrumentation {
+
+    private final Instrumentation instrumentation;
+
+    public InstrumentationProxy(Instrumentation instrumentation) {
+        this.instrumentation = instrumentation;
+    }
+}
+</code></pre>
+<ol start="2">
+<li>Hook系统的<code>Instrumentation</code></li>
+</ol>
+<pre><code class="language-java">//1. 获取进程中ActivityThread的对象
+Class&lt;?&gt; classes = Class.forName(&quot;android.app.ActivityThread&quot;);
+Method activityThread = classes.getDeclaredMethod(&quot;currentActivityThread&quot;);
+activityThread.setAccessible(true);
+Object currentThread = activityThread.invoke(null);
+Field instrumentationField = classes.getDeclaredField(&quot;mInstrumentation&quot;);
+instrumentationField.setAccessible(true);
+Instrumentation instrumentationInfo = (Instrumentation) instrumentationField.get(currentThread);
+//2. 创建代理对象，将mInstrumentation实例保存到代理对象中
+InstrumentationProxy proxy = new InstrumentationProxy(instrumentationInfo);
+//3. 将系统mInstrumentation示例替换为代理对象
+instrumentationField.set(currentThread, proxy);
+</code></pre>
+<ol start="3">
+<li>代理类中重写<code>execStartActivity</code>方法</li>
+</ol>
+<pre><code class="language-java">public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
+  	//...
+    ComponentName componentName = intent.getComponent();
+    String packageName = componentName.getPackageName();
+    String classname = componentName.getClassName();
+    if (classname.equals(&quot;TargetActivity&quot;)) { //判断是否为目标Activity
+        intent.setClassName(who, ProxyActivity.class.getCanonicalName()); // 替换为占位的Activity启动
+    }
+  	//...
+}
+</code></pre>
+<ol start="4">
+<li>代理类中重写<code>newActivity</code>方法，创建真正启动的<code>Activity</code></li>
+</ol>
+<pre><code class="language-java">public Activity newActivity(ClassLoader cl, String className, Intent intent) {
+  	//...
+    String classnameIntent = intent.getStringExtra(ACTIVITY_RAW);
+    String packageName = intent.getComponent().getPackageName(); // 获取Intent中保存的真正Activity包名、类名
+    if (className.equals(ProxyActivity.class.getCanonicalName())) {
+        ComponentName componentName = new ComponentName(packageName, classnameIntent); // 替换真实Activity的包名和类名
+        intent.setComponent(componentName);
+        className = classnameIntent;
+    }
+  	//...
+}
+</code></pre>
+<p>Hook Instrumentation实现Activity插件化启动小结：</p>
+<ol>
+<li>Hook系统的<code>Instrumentation</code>对象，设置创建的<code>代理类</code></li>
+<li>在代理类中修改启动<code>Activity</code>的<code>Intent</code>，将启动的目标<code>Activity</code>替换为<code>占位Activity</code>，从而避免注册清单的检查</li>
+<li>在代理类中重写<code>newActivity()</code>将启动的活动换回真实目标，然后继续执行原有逻辑</li>
+</ol>
+<p><code>Android</code>提供的<code>AIDL跨进程通信</code>同样也用到了<code>代理模式</code>，Client端调用asInterface()保存的interface对象其实就是Server端的代理，<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder">这里</a>有笔者实现的一个小Demo，感兴趣的同学可以点击查看</p>
+<h3 id="5-小结">5、小结</h3>
+<p>最后我们再来复习一下<code>代理模式</code>的定义：在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能</p>
+<p>实现方式分为<code>内部类</code>和<code>外部类</code>，<code>内部类</code>使用接口或抽象类，<code>外部类</code>使用继承实现</p>
+<p><code>代理模式</code>在平时的开发经常被用到，常用在业务系统中开发一些非功能性需求，比如：监控、统计、日志。我们将这些附加功能与业务功能解耦，放到<code>代理类</code>统一处理，让开发人员只需要关注业务方面的开发。除此之外，<code>代理模式</code>在跨进程通信、插件化等场景中也有使用</p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy">这里</a></p>
+<h2 id="四-结构型模式装饰者模式">四、结构型模式：装饰者模式</h2>
+<h3 id="1-模式定义-3">1、模式定义</h3>
+<p>从代码结构上来看，<code>装饰模式</code>和<code>代理模式</code>(内部类实现)两者间非常相似，从结构来看它俩不能说是毫无关系，只能说是一模一样；回顾上一小节对<code>代理模式</code>的定义：<code>代理模式</code>是指在不改变原始类的情况下，通过新增<code>代理类</code>的方式，来给原始类加入新的功能</p>
+<p>这句话动动俩字就是<code>装饰模式</code>：<code>装饰模式</code>是指在不改变原始类的情况下，通过新增<code>装饰类</code>的方式，加强原始类的属性。</p>
+<p>虽然<code>装饰模式</code>和<code>代理模式</code>结构非常相似，但适用场景中却太不一样；<code>装饰模式</code>在日常开发中主要解决继承过于复杂的问题，通过<code>组合</code>来替代<code>继承</code>，也就是说<code>装饰模式</code>是<code>继承</code>关系的一种替代方案之一</p>
+<p>一般有两种方式可以实现给一个类或对象增加行为：</p>
+<ul>
+<li><strong>继承</strong>：继承一个现有类可以使得子类在拥有自身方法的同时还拥有父类的方法，相当于给父类增加行为</li>
+<li><strong>关联</strong>：将一个类的对象嵌入另一个对象中，由另一个对象来决定是否调用嵌入对象的行为以便扩展自己的行为</li>
+</ul>
+<p>接下来我们通过<code>4.2</code>示例代码模拟的应用场景来解释为什么说<code>装饰模式</code>是继承关系的替代方案：</p>
+<h3 id="2-代码示例-3">2、代码示例</h3>
+<pre><code class="language-java">/*衣服-接口类*/
+public interface IClothes {
+    int getWarmValue();
+}
+
+/*衣服-大衣类*/
+public class Coat implements IClothes {
+    private final IClothes clothes;
+
+    public Coat(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 50;
+    }
+}
+
+/*衣服-裤子类*/
+public class Pants implements IClothes {
+    private final IClothes clothes;
+
+    public Pants(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 50;
+    }
+}
+
+/*衣服-衬衫类*/
+public class Shirt implements IClothes {
+    private final IClothes clothes;
+
+    public Shirt(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 30;
+    }
+}
+
+/*使用示例*/
+public class Test {
+    @Test
+    public void main() {
+        IClothes bob = new Bob();
+      	//在浴室洗澡
+        System.out.println(&quot;什么都没穿时的保暖值：&quot; + bob.getWarmValue());
+        bob = new Shirt(bob);
+      	//穿好衣服在家
+        System.out.println(&quot;穿了件衬衫时的保暖值：&quot; + bob.getWarmValue());
+        bob = new Pants(bob);
+        System.out.println(&quot;又穿了条裤子时的保暖值：&quot; + bob.getWarmValue());
+      	//出门约朋友
+        bob = new Coat(bob);
+        System.out.println(&quot;又穿了件外套时的保暖值：&quot; + bob.getWarmValue());
+    }
+
+  private class Bob implements IClothes {
+    	@Override
+    	public int getWarmValue() {
+        	return 0;
+    	}
+	}
+}
+</code></pre>
+<p>打印结果</p>
+<pre><code class="language-java">什么都没穿时的保暖值：0
+穿了件衬衫时的保暖值：30
+又穿了条裤子时的保暖值：80
+又穿了件外套时的保暖值：130
+</code></pre>
+<p>在该示例中，衬衫、裤子、外套等衣物分别实现了<code>IClothes</code>接口，不同的衣物保暖程度也不一样，也就是每件衣服增强的属性值都不一样；在不同场景的衣服搭配也不同，若本例不适用<code>装饰模式</code>而是使用<code>继承</code>的话，各种各样的排列组合可能会躲到爆炸；使用了<code>装饰模式</code>就只需要为每件衣服生成一个<code>装饰类</code>即可，所以就增加对象功能来说，<code>装饰模式</code>比生成子类实现更为灵活。</p>
+<h3 id="3-源码锚点-2">3、源码锚点</h3>
+<p>在<a href="https://time.geekbang.org/column/intro/250">极客时间：设计模式之美</a>中王争老师提到了<code>Java I/O 类</code>的设计中使用了<code>装饰模式</code>，无奈笔者水平有限，无法将王争老师的思想以自己的语言重新表述；笔者平时读/写文件都是通过项目中封装的工具类来操作，<code>Java I/O</code>如何设计的笔者确实不是很清楚，关于<code>Java I/O</code>类的使用以及用到哪些设计模式笔者会单独写一篇文章来介绍，对此感兴趣的同学可以自行搜索其他资料阅读</p>
+<p>除了<code>Java I/O</code>外，许多文章提到<code>Android Context</code>也是<code>装饰者模式</code>，关于这一点笔者倒是有不同的看法</p>
+<p><img src="https://yibaoshan.github.io//post-images/1641721341588.jpg" alt="" loading="lazy"><br>
+<em>图片来源：自己画的</em></p>
+<p>从类图中可以看到，Application、Service、Activity都继承自<code>ContextWrapper</code>；虽然<code>ContextWrapper</code>和<code>ContextImpl</code>都是<code>Context</code>的实现类，但在<code>ContextWrapper</code>中，所有的方法其实都委托给<code>mBase</code>(也就是ContextImpl)来实现；所以，基于现在<code>Context</code>的结构，笔者认为<code>Context</code>说是<code>代理模式</code>可能更为贴切</p>
+<p>但是，我们把场景稍微改动一下，假设现在新增<code>ContextImpl2</code>角色，增加的目的是为了使在<code>Application</code>和在<code>Activity</code>所能获取权限不同，<code>ContextImpl2</code>的权限更为强大，这样做就更符合<code>装饰模式</code>的设定</p>
+<p><img src="https://yibaoshan.github.io//post-images/1641721358761.jpg" alt="" loading="lazy"><br>
+<em>图片来源：自己画的</em></p>
+<h3 id="4-小结-2">4、小结</h3>
+<p><code>装饰模式</code>来实现扩展比继承更加灵活，<code>装饰模式</code>和<code>代理模式</code>内部类实现)极为相似，但它们所适用的场景不一样；当看到类似的代码结构时，需要联系上下文才能判断出设计者的意图；另外，<code>装饰模式</code>和<code>代理模式</code>在项目中所适用阶段也不相同，<code>代理模式</code>在任何阶段都可以使用，而<code>装饰模式</code>通常在项目前期设计阶段就应该考虑到。</p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/decorator">这里</a></p>
+<h2 id="五-结构型模式适配器模式">五、结构型模式：适配器模式</h2>
+<h3 id="1-模式定义-4">1、模式定义</h3>
+<p><code>适配器模式</code>的定义是将不兼容的接口转换为可兼容的接口，让原本由于接口不兼容而不能一起工作的类可以一起工作</p>
+<p><code>适配器模式</code>有两种实现方式：<code>类适配器</code>和<code>对象适配器</code>；其中，<code>类适配器</code>使用<code>继承</code>关系来实现，<code>对象适配器</code>使用<code>组合</code>关系来实现，两者的区别可以在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/adapter">这里</a>查看</p>
+<p>在实际开发中，<code>适配器模式</code>往往充当遗留问题的<code>实现转换器</code>，通常在项目后期代码更改代价很高，或者某个功能依赖第三方来实现的情况下使用，举个栗子：</p>
+<p>假设我们在一个Android项目中集成了<code>阿里支付</code>SDK，在调用登录方法时需要传入<code>高德地图</code>提供的位置信息，但是早期项目中已经接入<code>腾讯地图</code>，<code>腾讯地图</code>能够提供<code>阿里支付</code>所需的位置信息，只是入参类型不同接口不兼容。这种场景我们就可以使用<code>适配器模式</code>，定义一个包装类，把<code>腾讯地图</code>提供的位置信息转换成<code>阿里支付</code>需要的类型，这个包装类指的就是<code>适配器(Adapter)</code></p>
+<h3 id="2-代码示例-4">2、代码示例</h3>
+<pre><code class="language-java">
+/*阿里支付SDK*/
+public class AliPay {
+
+  	/*登录方法需要传入位置信息*/
+    public boolean login(String id, String pwd, IAMap.AMapParams location) {
+        return res;
+    }
+
+  	/*高德地图接口*/
+	public interface IAMap {
+
+    	AMapParams getAMapParams();
+
+    	class AMapParams {
+        	public float aMapLongitude;//经度
+        	public float aMapLatitude;//纬度
+            }
+	}
+}
+
+/*腾讯地图SDK*/
+public class TencentMap {
+
+    private final TencentMapParams params;
+
+    public TencentMap() {
+        params = new TencentMapParams();
+        params.tencentMapLongitude = new Random().nextFloat();
+        params.tencentMapLatitude = new Random().nextFloat();
+    }
+
+  	/*提供腾讯地图的位置信息*/
+    public TencentMapParams getTencentMapParams() {
+        return params;
+    }
+
+    public static class TencentMapParams {
+        public float tencentMapLongitude;//经度
+        public float tencentMapLatitude;//纬度
+    }
+}
+
+/*适配器，使用继承实现，也可以改为使用对象实现*/
+public class Adapter extends TencentMap implements IAMap {
+
+    @Override
+    public AMapParams getAMapParams() {
+      	//将腾讯地图提供的位置信息转为高德的位置信息
+        AMapParams aMapParams = new AMapParams();
+        TencentMapParams tencentMapParams = this.getTencentMapParams();
+        aMapParams.aMapLongitude = tencentMapParams.tencentMapLongitude;
+        aMapParams.aMapLatitude = tencentMapParams.tencentMapLatitude;
+        return aMapParams;
+    }
+}
+
+/*使用示例*/
+public class Test {
+
+    @Test
+    public void main() {
+        Adapter adapter = new Adapter();
+        AliPay aliPay = new AliPay();
+        aliPay.login(&quot;admin&quot;, &quot;admin&quot;, adapter.getAMapParams());
+    }
+
+}
+</code></pre>
+<p>代码示例中有三个角色，<code>阿里支付</code>SDK、<code>腾讯地图</code>SDK、<code>适配器Adapter</code>，其中<code>适配器</code>的作用就是将<code>腾讯地图</code>提供的<code>位置</code>信息转换成<code>阿里支付</code>想要基于的<code>高德地图</code>接口的位置信息，这就是所谓的不兼容的接口转换为可兼容的接口</p>
+<h3 id="3-源码锚点-3">3、源码锚点</h3>
+<p>在<code>Android</code>领域的大多数博客中，总是以<code>RecyclerView.Adapter</code>为例来讲解<code>适配器模式</code>，这一点笔者认为可能不是很恰当，在查看了部分<code>RecyclerView</code>源码和讲解设计模式的书籍之后，笔者认为<code>RecyclerView</code>的<code>Adapter</code>虽然名字叫适配器，但它完成的工作说是<code>桥接模式</code>可能更适合一些</p>
+<p>关于<code>适配器模式</code>的源码示例笔者暂时没有找到，若您发现<code>适配器模式</code>的源码应用，请到<a href="https://github.com/yibaoshan/Blackboard/issues">这里</a>告诉我，感谢</p>
+<h3 id="4-小结-3">4、小结</h3>
+<p>总结一下，<code>适配器模式</code>可以简单理解成<code>转换器</code>，大部分情况下是作为一种<code>补偿机制</code>，用来补救设计上的缺陷，或者像<code>5.2</code>代码示例中源码无法更改的情况；使用这种模式算是“无奈之举”，如果在设计初期，我们就能协调规避掉接口不兼容的问题，那这种模式就没有应用的机会了</p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/adapter">这里</a></p>
+<h2 id="六-结构型模式桥接模式">六、结构型模式：桥接模式</h2>
+<h3 id="1-模式定义-5">1、模式定义</h3>
+<p><code>桥接模式</code>的定义比较简单：将抽象部分与它的实现部分分离，使它们都可以独立地变化。</p>
+<p>由于桥接模式的定义比较简短，所以网上关于桥接模式的争议比较多，不管是在中文网站还是英文网站；存在争议的地方在于，<code>桥接模式</code>是GoF定义的的<strong>将实现与抽象分离</strong>，还是一个类存在两个(或多个)独立变化的维度，可以通过组合的方式，让这两个(或多个)维度可以独立进行扩展；若是后者，那么它和<code>策略模式</code>的区别是什么</p>
+<p>目前关于<code>桥接模式</code>还没有定论，所以本篇文章根据GoF的原文定义来展开。笔者个人会将<code>桥接模式</code>等同于<strong>依赖倒置原则</strong>的实现，包括上文提到的<code>桥接模式</code>以及接下来的代码示例都基于此，若和您理解的有偏差，可以跳过此章节</p>
+<h3 id="2-代码示例-5">2、代码示例</h3>
+<pre><code class="language-java">public interface IImageLoader {
+
+    void loadUrlIntoImageView(ImageView view, String url);
+
+}
+
+public class ImageLoader implements IImageLoader {
+
+    @Override
+    public void loadUrlIntoImageView(ImageView view, String url) {
+      	//do something..
+    }
+}
+</code></pre>
+<p>上面的例子比较简单，但大多数<code>桥接模式</code>的实现也都是在此基础上进行扩展，增加更多的类和更多的方法</p>
+<h3 id="3-小结">3、小结</h3>
+<p><code>桥接模式</code>在实际开发中使用的比较多，多数<code>Android</code>项目都会使用<code>桥接模式</code>来隔离第三方库，以图片加载框架举例，其中，定义属性行为的抽象层放在Base模块，而实现方一般放在Business或APP层</p>
+<p>此小节存在争议，笔者另提供其他的资料供您参考：<a href="https://refactoringguru.cn/design-patterns/bridge">桥接模式</a>、<a href="https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/bridge.html">桥接模式2</a>、<a href="http://wiki.c2.com/?BridgePattern">Bridge Pattern</a>、<a href="https://www.journaldev.com/1491/bridge-design-pattern-java">Bridge Design Pattern in Java</a></p>
+<h2 id="七-结构型模式外观模式">七、结构型模式：外观模式</h2>
+<h3 id="1-模式定义-6">1、模式定义</h3>
+<p><code>外观模式</code>是指给一个复杂的系统提供一个统一的外观(接口)，方便调用者使用，不会改变任何接口<br>
+以商品下单为例，当服务端接收到客户端的下单请求时，需要检查用户身份，商品库存、价格、邮费、优惠券等信息，<code>外观模式</code>从很大程度上提高了客户端使用的便捷性，使得客户端无须关心子系统的工作细节，通过外观角色即可调用相关功能</p>
+<p>从<code>外观模式</code>的职能来看，笔者认为可能叫做封装模式更合适，因为外观模式貌似也只解决了对外公开方法属性的问题，甚至都不能被称为设计模式</p>
+<h2 id="八-总结">八、总结</h2>
+<p>本文介绍了7大结构型模式中的6种模式，其中，除了<code>享元模式</code>和<code>外观模式</code>相对独立之外，其他4种设计模式：<code>代理</code>、<code>装饰者</code>、<code>适配器</code>、<code>桥接</code>，它们之间的代码结构非常相似。笼统来说，它们都可以称为<code>Wrapper</code>模式，也就是通过<code>Wrapper类</code>二次封装原始类。</p>
+<p>尽管代码结构相似，但这4种设计模式的用意完全不同，也就是说要解决的问题、应用场景、适用的项目阶段不同，这也是它们的主要区别</p>
+<ol>
+<li><strong>代理模式</strong>：代理模式在不改变原始类接口的条件下，为原始类定义一个代理类，主要目的是控制访问，而非加强功能，这是它跟装饰器模式最大的不同。</li>
+<li><strong>装饰器模式</strong>：装饰者模式同样在不改变原始类接口的情况下，对原始类功能进行增强，并且支持多个装饰器的嵌套使用。</li>
+<li><strong>适配器模式</strong>：适配器模式是一种事后的补救策略。适配器提供跟原始类不同的接口，而代理模式、装饰器模式提供的都是跟原始类相同的接口。</li>
+<li><strong>桥接模式</strong>：桥接模式的目的是将接口部分和实现部分分离，从而让它们可以较为容易、也相对独立地加以改变。</li>
+</ol>
+<p><em>区别结论来源：<a href="https://time.geekbang.org/column/intro/250">极客时间：设计模式之美-王争</a></em></p>
+<p>Stack Overflow有关于<code>代理、适配、适配器、桥接</code>这4种模式有什么不同的讨论话题，可以点击下面的链接进行查看</p>
+<p>https://stackoverflow.com/questions/350404/how-do-the-proxy-decorator-adapter-and-bridge-patterns-differ/350471#350471</p>
+<p>组合模式不包含在本文中，想要了解更多的可以点击<a href="https://refactoringguru.cn/design-patterns/composite">这里</a></p>
+<p>全文完</p>
+<p><em>再次说明：以上是笔者个人对<code>结构型模式</code>的理解，由于<code>结构型模式</code>的概念有些抽象(相较于<code>创建型模式</code>)，每个人的理解也不尽相同<br>
+若您发现笔者的描述有不准确甚至完全错误的地方，请到<a href="https://github.com/yibaoshan/Blackboard/issues">这里</a>进行反馈，感谢</em></p>
+<h2 id="九-参考资料">九、参考资料</h2>
+<ul>
+<li><a href="https://design-patterns.readthedocs.io/zh_CN/latest/index.html">图说设计模式</a></li>
+<li><a href="https://refactoringguru.cn/design-patterns">refactoringguru.cn</a></li>
+<li><a href="https://time.geekbang.org/column/intro/250">极客时间：设计模式之美-王争</a></li>
+<li><a href="https://item.jd.com/12623588.html">《设计模式：可复用面向对象软件的基础》</a></li>
+<li><a href="https://item.jd.com/11793928.html">《Android 源码设计模式解析与实战》-何红辉 / 关爱民</a></li>
+<li><a href="https://leetcode-cn.com/leetbook/detail/design-patterns/">《深入浅出设计模式-LeetCode》</a></li>
+<li><a href="https://item.jd.com/10100236.html">《Head First 设计模式》</a></li>
+<li><a href="https://juejin.cn/post/6844903941105270798#comment">Android插件化—高手必备的Hook技术</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/design-pattern-creational/" class="post-title gt-a-link">
+                    漫谈设计模式（一）：创建型模式
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

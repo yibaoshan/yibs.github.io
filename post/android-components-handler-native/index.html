@@ -1,0 +1,524 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Android组件系列：再谈Handler机制（Native篇） | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Android组件系列：再谈Handler机制（Native篇）
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-23 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/handler/" class="post-tags">
+                            # Handler
+                        </a>
+                    
+                        <a href="https://yibaoshan.github.io/tag/Android-Components/" class="post-tags">
+                            # Android组件
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7146239048191836190">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<p>笔者之前已经写过一篇关于 Java 层 Handler 机制的<a href="https://juejin.cn/post/7084544971713282056">文章</a>，从应用开发的角度出发，详细介绍了 Handler 机制的设计背景，以及如何自己如何手写一套 Handler</p>
+<p>本篇文章我们将深入 Native 层，一起来探究 <strong><code>Looper#loop()</code></strong> 为什么不会卡死主线程背后的原因</p>
+<p>以下，enjoy：</p>
+<figure data-type="image" tabindex="1"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a285ca319b749c18c006a81e1776144~tplv-k3u1fbpfcp-watermark.image?" alt="android_component_handler_android_native_overview.png" loading="lazy"></figure>
+<h1 id="一-开篇">一、开篇</h1>
+<p>从 Android 2.3 开始，Google 把 Handler 的阻塞/唤醒方案从 <strong><code>Object#wait() / notify()</code></strong>，改成了用 <strong><code>Linux epoll</code></strong> 来实现</p>
+<p>原因是 Native 层也引入了一套消息管理机制，用于提供给 C/C++ 开发者使用，而现有的阻塞/唤醒方案是为 Java 层准备的，只支持 Java，现在 Native 希望能够像 Java 一样： <strong><code>main</code></strong> 线程在没有消息时进入阻塞状态，有到期消息需要执行时，<strong><code>main</code></strong> 线程能及时醒过来处理，怎么办？有两种选择</p>
+<p><strong>要么，继续使用 <code>Object#wait() / notify( )</code>，Native 向消息队列添加新消息时，通知 Java 层自己需要什么时候被唤醒</strong></p>
+<p><strong>要么，在 Native 层重新实现一套阻塞/唤醒方案，弃用 <code>Object#wait() / notify() </code>，Java 通过 jni 调用 Native 进入阻塞态</strong></p>
+<p>结局我们都知道了，Google 选择了后者</p>
+<p>其实如果只是将 Java 层的阻塞/唤醒移植到 Native 层，倒也不用祭出 <strong><code>epoll</code></strong> 这个大杀器 ，Native 调用 <strong><code>pthread_cond_wait</code></strong> 也能达到相同的效果</p>
+<p>选择 <strong><code>epoll</code></strong> 的另一个原因是， Native 层支持监听 <strong><code>自定义 Fd</code></strong> （<em><strong>比如 Input 事件就是通过 <code>epoll</code> 监听 <code>socketfd</code> 来实现将事件转发到 APP 进程的</strong></em>），<strong>而一旦有监听多个流事件的需求，那就只能使用 Linux I/O 多路复用</strong>，<strong><code>epoll</code></strong> 就是 Linux I/O 多路复用的其中一个实现</p>
+<h2 id="理解-io多路复用之epoll">理解 I/O多路复用之epoll</h2>
+<p>说了这么多，那到底什么是 <strong><code>epoll</code></strong> ？</p>
+<p><strong><code>epoll</code></strong> 全称 <strong><code>eventpoll</code></strong>，是 Linux 中的一种 <strong>I/O 多路复用技术</strong>，除了 <strong><code>epoll</code></strong> 外，还有 <strong><code>select</code></strong> 和 <strong><code>poll</code></strong> 两种不同的实现方式，我们这只讨论 <strong><code>epoll</code></strong></p>
+<p>要理解 <strong><code>epoll</code></strong>  ，我们首先需要理解什么是 <strong><code>&quot;流&quot;</code></strong></p>
+<p><strong>在 Linux 中，任何可以进行 I/O 操作的对象都可以看做是流</strong>，一个 <strong><code>文件</code></strong>， <strong><code>socket</code></strong>， <strong><code>pipe</code></strong>，我们都可以把他们看作流</p>
+<p>接着我们来讨论流的 I/O 操作，通过调用 <strong><code>read()</code></strong> ，我们可以从流中<strong>读出数据</strong>；通过 <strong><code>write()</code></strong> ，我们可以往流 <strong>写入数据</strong></p>
+<p>现在假定一个情形，<strong>我们需要从流中读数据，但是流中还没有数据</strong></p>
+<pre><code class="language-cpp">int socketfd = socket();
+connect(socketfd,serverAddr);
+int n = send(socketfd,'在吗');
+n = recv(socketfd); //等待接受服务器端 发过来的信息
+...//处理服务器返回的数据
+</code></pre>
+<p>一个典型的例子为，<strong>客户端要从 <code>socket</code> 中读数据，但是服务器还没有把数据传回来</strong>，这时候该怎么办？</p>
+<ul>
+<li><strong>阻塞：线程阻塞到 <code>recv()</code> 方法，直到读到数据后再继续向下执行</strong></li>
+<li><strong>非阻塞：<code>recv()</code> 方法没读到数据立刻返回 -1 ，用户线程按照固定间隔轮询 <code>recv()</code> 方法，直到有数据返回</strong></li>
+</ul>
+<p>好，现在我们有了<strong>阻塞</strong>和<strong>非阻塞</strong>两种解决方案，接着我们同时发起100个网络请求，看看这两种方案各自会怎么处理</p>
+<p>先说阻塞模式，<strong>在<code>阻塞模式</code>下，一个线程一次只能处理一个流的 I/O 事件，想要同时处理多个流，只能使用<code>多线程 + 阻塞 I/O</code> 的方案</strong>。<strong>但是，每个 <code>socket</code> 对应一个线程会造成很大的资源占用，尤其是对于长连接来说，线程资源一直不会释放，如果后面陆续有很多连接的话，很快就会把机器的内存跑完</strong></p>
+<p><strong>在<code>非阻塞模式</code>下，我们发现<code>单线程</code>可以同时处理多个流了，只要不停的把所有流从头到尾的问一遍是否有返回（返回值大于-1 ）就可以得知哪些流有数据，但这样的做法效率也不高，因为如果所有的流都没有数据，那么只会白白浪费 CPU</strong></p>
+<p>发现问题了吗？只有<strong>阻塞</strong>和<strong>非阻塞</strong>这两种方案时，一旦有监听多个流事件的需求，用户程序只能选择，<strong>要么浪费线程资源（<em><code>阻塞型 I/O</code></em>）</strong>，<strong>要么浪费 CPU 资源（<em><code>非阻塞型 I/O</code></em>）</strong>，没有其他更高效的方案</p>
+<p>并且在用户程序端这个问题是无解的，<strong>必须让内核创建某种机制，把这些流的监听事件接管过去</strong>，因为任何事件都必须通过内核读取转发，内核总是能在第一时间知晓事件发生</p>
+<p><strong>这种能够让用户程序拥有同时监听多个流读写事件的机制，就被称为 I/O 多路复用！</strong></p>
+<p>然后我们来看 <strong><code>epoll</code></strong> 提供的函数：</p>
+<pre><code class="language-cpp">int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+</code></pre>
+<p>一共有三个函数，<strong><code>epoll_create()</code></strong> 用于创建一个 <strong><code>epoll</code></strong> 池</p>
+<p><strong><code>epoll_ctl()</code></strong> 用来控制需要监听的 <strong><code>fd</code></strong> 的增删改操作，最后一个参数 <strong><code>event</code></strong> 是告诉内核需要监听什么事件，比如上面的 <strong><code>socketfd </code></strong> 监听的就是 <strong><code>可读事件</code></strong>，一旦接收到服务器返回的数据，监听 <strong><code>socketfd</code></strong> 的对象将会收到回调通知，表示 <strong><code>socket</code></strong> 中有数据可以读了</p>
+<p>最后一个 <strong><code>epoll_wait()</code></strong> 方法是使用户线程阻塞的方法，它的第二个参数 <strong><code>events</code></strong> 接受的是一个集合对象，如果有多个事件同时发生，<strong><code>events</code></strong> 可以从内核得到发生的事件的集合</p>
+<h2 id="理解-linux-eventfd">理解 Linux eventfd</h2>
+<p>理解了 <strong><code>epoll</code></strong> 后我们再来看 <strong><code>eventfd</code></strong> ，<strong><code>eventfd</code></strong> 是专门用来传递事件的 <strong><code>fd</code></strong> ，它提供的功能也非常简单：<strong>累计计数</strong></p>
+<pre><code class="language-cpp">int efd = eventfd();
+write(efd, 1);//写入数字1
+write(efd, 2);//再写入数字2
+int res = read(efd);
+printf(res);//输出值为 3
+</code></pre>
+<p>通过 <strong><code>write()</code></strong> 函数，我们可以向 <strong><code>eventfd</code></strong> 中写入一个 <strong><code>int</code></strong> 类型的值，只要没有发生 <strong><code>read()</code></strong> 事件，<strong><code> eventfd</code></strong> 中的值将会一直累加</p>
+<p>而一旦我们调用 <strong><code>read()</code></strong> 函数将 <strong><code>eventfd</code></strong> 保存的值读了出来，在没有新的值加入之前，再次调用 <strong><code>read()</code></strong> 方法时会发生阻塞，直到有人重新向 <strong><code>eventfd</code></strong> 写入值</p>
+<p><strong><code>eventfd</code> 实现的是计数的功能，只要 <code>eventfd</code> 计数不为 0 ，那么表示 <code>fd</code> 是可读的。结合 <code>epoll</code> 的特性，我们可以使用非常轻松的创建一个<code>生产者/消费者模型</code>，消费者大部分时候处于阻塞休眠状态，而一旦有请求入队，消费者就立马唤醒处理</strong></p>
+<p>Handler 机制的底层逻辑就是 <strong><code>epoll</code></strong> + <strong><code>eventfd</code></strong>，好，有了 <strong><code>epoll</code></strong> 、 <strong><code>eventfd</code></strong> 基础，我们开始正式进入 Handler 的 Native 世界</p>
+<h1 id="二-进入native-handler">二、进入Native Handler</h1>
+<p>绝大多数 Android 工程师都或多或少的了解过 Handler 机制，所以关于 Handler 的基本使用和实现的原理我们就不过多赘述了，直奔主题</p>
+<p>我们来重点关注 MessageQueue 类中的几个 <strong>jni</strong> 方法：<strong><code>nativeInit()</code></strong>、<strong><code>nativePollOnce()</code></strong> 和 <strong><code>nativeWake()</code></strong>，它们分别对应了 Native 消息队列中的 <strong><code>初始化消息队列</code></strong>、 <strong><code>消息的循环与阻塞</code></strong> 以及 <strong><code>消息的分送与唤醒</code></strong> 这三大环节</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/os/MessageQueue.java
+class MessageQueue {
+
+    private native static long nativeInit();
+    private native void nativePollOnce(long ptr, int timeoutMillis); /*non-static for callbacks*/
+    private native static void nativeWake(long ptr);
+
+}
+</code></pre>
+<h2 id="消息队列的初始化">消息队列的初始化</h2>
+<p>先来看第一步，消息队列的初始化流程</p>
+<p><strong>Java MessageQueue 构造函数中会调用 <code>nativeInit()</code> 方法，同步在 Native 层也会创建一个消息队列 NativeMessageQueue 对象，用于保存 Native 开发者发送的消息</strong></p>
+<pre><code class="language-java">/frameworks/base/core/java/android/os/MessageQueue.java
+MessageQueue(boolean quitAllowed) {
+    mQuitAllowed = quitAllowed;
+    mPtr = nativeInit();
+}
+</code></pre>
+<p><strong>在创建 NativeMessageQueue 对象时又会触发创建 Looper 对象</strong></p>
+<pre><code class="language-cpp">/frameworks/base/core/jni/android_os_MessageQueue.cpp
+class android_os_MessageQueue {
+
+    void android_os_MessageQueue_nativeInit() {
+        NativeMessageQueue* nativeMessageQueue = new NativeMessageQueue();
+    }
+    
+    NativeMessageQueue() {
+        mLooper = Looper::getForThread();
+        if (mLooper == NULL) {
+            mLooper = new Looper(false);
+            Looper::setForThread(mLooper);
+        }
+    }
+}
+</code></pre>
+<p><strong>这里创建 Looper 对象的处理逻辑和 Java 一样，先去线程局部存储区获取 Looper 对象，如果为空，创建一个新的 Looper 对象并保存到线程局部存储区</strong></p>
+<p>我们继续，接着来看 <strong>Native Looper 初始化流程</strong></p>
+<pre><code class="language-cpp">/system/core/libutils/Looper.cpp
+class looper {
+
+    Looper::Looper() {
+        int mWakeEventFd = eventfd();
+        rebuildEpollLocked();
+    }
+
+    void rebuildEpollLocked(){
+        int mEpollFd = epoll_create();//哎，这儿非常重要，在 Looper 初始化时创建了 epoll 对象
+        epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mWakeEventFd, &amp; eventItem);//把用于唤醒消息队列的eventfd 添加到 epoll 池
+    }
+
+}
+</code></pre>
+<p><strong>关键的地方来了！</strong></p>
+<p><strong>Looper 的构造函数首先创建了 <code>eventfd</code> 类型的 <code>fd</code> ：<code>mWakeEventFd</code>，它的作用就是用来监听 MessageQueue 是否有新消息加入，这个对象非常重要，一定要记住它！</strong></p>
+<p><strong>随后调用的 <code>rebuildEpollLocked()</code> 方法中，又创建了 <code>epoll</code> 对象：<code>mEpollFd</code>，并将用来监听消息队列的 <code>mWakeEventFd</code> 添加到 <code>epoll</code> 池</strong></p>
+<p>这两步执行完成以后，<strong>任一生产者向 <strong><code>mWakeEventFd</code></strong> 写入值时，作为消费者，APP 进程的 <strong><code>main</code></strong> 线程都将会被唤醒</strong></p>
+<p>好了，Handler 两大核心对象 <strong><code>mEpollFd</code></strong> 和 <strong><code>mWakeEventFd</code></strong> 创建成功，我们来总结一下消息队列的初始化流程：</p>
+<ol>
+<li><strong>Java 层初始化消息队列时，同步调用 <code>nativeInit()</code> 方法，在 native 层创建了一个 NativeMessageQueue 对象</strong></li>
+<li><strong>Native 层消息队列被创建的同时，也会创建一个 Native Looper ，它用于处理三件事： native 注册的<code>自定义 Fd</code> 引起的事件消息、消息队列被唤醒和超时以及分发 Native 消息队列中的到期消息</strong></li>
+<li><strong>在创建 Native Looper 的过程中，调用 <code>eventfd()</code> 生成<code> mWakeEventFd</code>，它是后续用于唤醒消息队列的核心</strong></li>
+<li><strong>初始化 Native Looper 的最后一步调用了 <code>rebuildEpollLocked()</code> 方法，在其中调用 <code>epoll_create()</code> 初始化了一个 <code>epoll</code> 实例 <code>mEpollFd</code> ，然后使用 <code>epoll_ctl()</code> 方法将 <code>mEpollFd</code> 注册到 <code>epoll</code> 池</strong></li>
+</ol>
+<p><strong>至此，Native 层的消息队列初始化完成</strong></p>
+<h2 id="消息的循环与阻塞">消息的循环与阻塞</h2>
+<p>消息队列创建完以后，整个线程就会阻塞到 <strong><code>Looper#loop()</code></strong> 方法中，在 Java 层的的调用链大致是这样的：</p>
+<pre><code class="language-java">Looper#loop()
+    -&gt; MessageQueue#next()
+        -&gt; MessageQueue#nativePollOnce()
+}
+</code></pre>
+<p><strong>最后一步调用的 <code>nativePollOnce()</code> 又是一个 jni 方法，我们接着往下跟，看看 Native 中做了些什么</strong></p>
+<pre><code class="language-cpp">/frameworks/base/core/jni/android_os_MessageQueue.cpp
+class android_os_MessageQueue {
+
+    //jni方法，转到 NativeMessageQueue#pollOnce()
+    void android_os_MessageQueue_nativePollOnce(){
+        nativeMessageQueue-&gt;pollOnce(env, obj, timeoutMillis);
+    }
+    class NativeMessageQueue : MessageQueue {
+    
+        /转到 Looper#pollOnce() 方法
+        void pollOnce(){
+            mLooper-&gt;pollOnce(timeoutMillis);
+        }
+    }
+}
+</code></pre>
+<p><strong>可以看到 NativeMessageQueue 中什么都没做，只是把 <code>nativePollOnce()</code> 方法请求转发给了 Looper</strong></p>
+<p><strong>主要的逻辑都在 Looper 中，我们从 <code>Looper#pollOnce()</code> 方法接着往下看</strong></p>
+<pre><code class="language-cpp">//system/core/libutils/Looper.cpp
+class looper {
+
+    int pollOnce(int timeoutMillis){
+        int result = 0;
+        for (;;) {
+            if (result != 0) {
+                return result;
+            }
+            result = pollInner(timeoutMillis);//超时
+        }
+    }
+
+    int pollInner(int timeoutMillis){
+        int eventCount = epoll_wait(mEpollFd, eventItems, EPOLL_MAX_EVENTS, timeoutMillis);//调用 epoll_wait() 等待事件的产生
+    }
+}
+</code></pre>
+<p><strong>看到了吗？ <code>pollOnce()</code> 方法中会不停的轮询检查 <code>pollInner()</code> 的返回值，不等于 0 就返回给上层，这里的 <code>result</code> 类型是在 <code>Looper.h</code> 文件中声明的枚举类，一共有4种结果：</strong></p>
+<ul>
+<li>-1 表示在超时时间到期之前使用 <strong><code>wake()</code></strong> 唤醒了轮询，通常是有需要立刻执行的新消息加入了队列</li>
+<li>-2 表示多个事件同时发生，有可能是新消息加入，也有可能是监听的 <strong><code>自定义 fd</code></strong> 发生了 I/O 事件</li>
+<li>-3 表示设定的超时时间到期了</li>
+<li>-4 表示错误，不知道哪里会用到</li>
+</ul>
+<p><strong>而如果消息队列中没消息，或者设定的超时时间没到期，再或者用户<code>自定义 fd</code> 没有事件发生，都会导致线程最终会阻塞到 <code>pollInner()</code> 方法中， <code>pollInner()</code> 中则是使用了 <code>epoll_wait()</code> 方法等待事件的产生</strong></p>
+<p><strong>总结一下，消息队列在初始化成功以后，Java 层的 <code>Looper#loop()</code> 会开始无限轮询，不停的获取下一条消息。如果消息队列为空，调用 <code>epoll_wait</code> 使线程进入到阻塞态，让出 CPU 调度</strong></p>
+<p>从 Java 到 Native 整个调用流程大致是这样的：</p>
+<pre><code>Looper#loop()
+    -&gt; MessageQueue#next()
+        -&gt; MessageQueue#nativePollOnce()
+            -&gt; NativeMessageQueue#pollOnce() //注意，进入 Native 层
+                -&gt; Looper#pollOnce()
+                    -&gt; Looper#pollInner()
+                        -&gt; epoll_wait()
+</code></pre>
+<h2 id="消息的发送唤醒机制">消息的发送/唤醒机制</h2>
+<p>好，现在的消息队列里面是空的，经过上一小节的分析，我们发现用户线程阻塞到了 native 层的 <strong><code>Looper#pollInner()</code></strong> 方法调用中，我们来向消息队列发送一条消息唤醒它</p>
+<p>前面我们说了，Java 和 Native 都各自维护了一套消息队列，所以他们发送消息的入口也不一样</p>
+<p><strong>Java 开发使用 <code>Handler#sendMessage() / post()</code>，C/C++ 开发使用 <code>Looper#sendMessage()</code></strong></p>
+<p>我们先来看 Java</p>
+<pre><code class="language-java">/frameworks/base/core/java/android/os/Handler.java
+class Handler {
+    
+    boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+        msg.target = this;
+        return queue.enqueueMessage(msg, uptimeMillis);
+    }
+}
+
+/frameworks/base/core/java/android/os/MessageQueue.java
+class MessageQueue {
+    
+    boolean enqueueMessage(Message msg, long when) {
+        //...按照到期时间将消息插入消息队列
+        if (needWake) {
+            nativeWake(mPtr);
+        }
+    }
+
+}
+</code></pre>
+<p><strong>在使用 Handler 发送消息时，不管调用的是 <code>sendMessage</code> 还是 <code>post</code>，最后都是调用到 <code>MessageQueue#enqueueMessage()</code> 方法将消息入列，入列的顺序是按照执行时间先后排序</strong></p>
+<p><strong>如果我们发送的消息需要马上被执行，那么将 <code>needWake</code> 变量置为 <code>true</code>，接着使用 <code>nativeWake()</code> 唤醒线程</strong></p>
+<blockquote>
+<p><strong><code>nativeWake()</code> 方法也是 jni 调用，请求经过层层转发，最终会调用到 Native Looper 中的 <code>wake()</code> 方法，在此过程中的调用链比较清晰而且非常简单，这里就不展示了</strong></p>
+</blockquote>
+<p>Java 发送消息的方式聊完了，然后我们看 Native 层如何发送消息</p>
+<pre><code class="language-cpp">/system/core/libutils/Looper.cpp
+class looper {
+
+    void Looper::sendMessageAtTime(uptime, handler,message) {
+        int i = 0;
+        int messageCount = mMessageEnvelopes.size();
+        while (i &lt; messageCount &amp;&amp; uptime &gt;= mMessageEnvelopes.itemAt(i).uptime) {
+            i += 1;
+        }
+        mMessageEnvelopes.insertAt(messageEnvelope(uptime, handler, message), i, 1);
+        // Wake the poll loop only when we enqueue a new message at the head.
+        if (i == 0) {
+            wake();
+        }
+    }
+}
+</code></pre>
+<p><strong>Native 层通过 <code>sendMessageAtTime()</code> 方法向消息队列发送消息，添加消息的处理逻辑和 Java 处理逻辑是类似的，唯一有区别的一点是 Java 消息队列使用的链表结构，而 Native 层使用的是集合</strong></p>
+<p><strong>按照时间的先后顺序添加到 <code>mMessageEnvelopes</code> 集合中，执行时间离得最近的消息被放在前面，如果发现需要唤醒线程，则调用 <code>wake()</code> 方法</strong></p>
+<p>我们发现，<strong>当需要唤醒线程时，Java 和 Native 都会执行到 <code>Looper#wake()</code> 方法</strong></p>
+<p>之前我们说<strong>Handler 机制的底层逻辑就是 <code>epoll</code> + <code>eventfd</code></strong>，读者朋友不妨大胆猜一下，这里的线程是怎么被唤醒的？</p>
+<pre><code class="language-cpp">/system/core/libutils/Looper.cpp
+class looper {
+
+    void Looper::wake() {
+        int inc = 1;
+        write(mWakeEventFd, &amp;inc);
+    }
+}
+</code></pre>
+<p>答案非常简单，<strong><code>write()</code> 一行方法调用，向 <code>mWakeEventFd</code> 写入了一个 1（<em>提醒一下，<code>mWakeEventFd</code> 的类型是 <code>eventfd</code></em> ）</strong></p>
+<p><strong><code>eventfd</code></strong> 被写入值后，状态会从 <strong><code>不可读</code></strong> 变成 <strong><code>可读</code></strong>，而 <strong><code>epoll</code></strong> 监听到 <strong><code>fd</code></strong> 状态发生变化后，将事件从内核返回给 <strong><code>epoll_wait()</code></strong> 调用，线程的阻塞态将会被取消，继续向下执行</p>
+<p>好，我们来总结一下消息的发送与唤醒中几个关键的步骤：</p>
+<ol>
+<li><strong>Java 层的 Handler 发送消息，会调用到消息队列的 <code>enqueueMessage()</code> 方法，如果消息需要马上执行，那么调用 <code>nativeWake()</code> 执行唤醒，由 Native 层的 <code>Looper#wake()</code> 响应最终的唤醒请求</strong></li>
+<li><strong>Native 层通过 <code>Looper#sentMessageAtTime()</code> 来发送消息，处理逻辑与 Java 类似，如果需要唤醒线程，调用 <code>Looper#wake()</code></strong></li>
+<li><strong><code>Looper#wake()</code> 唤醒方法中，调用 <code>write()</code> 方法向 <code>mWakeEventFd</code> 写入 1</strong></li>
+<li><strong>初始化队列时为 <code>mWakeEventFd</code> 注册了 <code>epoll</code> 监听，所以一旦有来自于 <code>mWakeEventFd</code> 的新内容， <code>epoll_wait()</code> 阻塞调用就会返回，这里就已经起到了唤醒队列的作用</strong></li>
+</ol>
+<p>消息的发送与唤醒的流程基本上结束了，接下来是 Handler 机制的重头戏：<strong>线程唤醒后的消息分发处理</strong></p>
+<h2 id="唤醒后消息的分发处理">唤醒后消息的分发处理</h2>
+<p>线程在没有消息需要处理时会阻塞在 <strong><code>Looper#pollInner()</code></strong> 方法调用，唤醒同样也是在 <strong><code>pollInner()</code></strong> 方法中执行</p>
+<p><strong>线程醒来以后，先判断自己为什么醒过来，再根据唤醒类型执行不同的逻辑</strong></p>
+<blockquote>
+<p><strong><code>pollInner()</code> 方法稍微有点长，关键步骤我作了标记，我们一点点来捋</strong></p>
+</blockquote>
+<pre><code class="language-cpp">/system/core/libutils/Looper.cpp
+class looper {
+
+    int pollInner(int timeoutMillis){
+        int result = POLL_WAKE;
+        // step 1，epoll_wait 方法返回
+        int eventCount = epoll_wait(mEpollFd, eventItems, timeoutMillis); 
+        if (eventCount == 0) { // 事件数量为0表示，达到设定的超时时间
+            result = POLL_TIMEOUT;
+        }
+        for (int i = 0; i &lt; eventCount; i++) {
+            if (eventItems[i] == mWakeEventFd) {
+                // step 2 ，清空 eventfd，使之重新变为可读监听的 fd
+                awoken();
+            } else {
+                // step 3 ，保存自定义fd触发的事件集合
+                mResponses.push(eventItems[i]);
+            }
+        }
+        // step 4 ，执行 native 消息分发
+        while (mMessageEnvelopes.size() != 0) {
+            if (messageEnvelope.uptime &lt;= now) { // 检查消息是否到期
+                messageEnvelope.handler-&gt;handleMessage(message);
+            }
+        }
+        // step 5 ，执行 自定义 fd 回调
+        for (size_t i = 0; i &lt; mResponses.size(); i++) {
+            response.request.callback-&gt;handleEvent(fd, events, data);
+        }
+        return result;
+    }
+
+    void awoken() {
+        read(mWakeEventFd) ;// 重新变成可读事件
+    }
+
+}
+</code></pre>
+<p><strong>step 1 ：</strong> <strong><code>epoll_wait</code></strong> 方法返回说明有事件发生，返回值 <strong><code>eventCount</code></strong> 是发生事件的数量。如果为0，表示达到设定的超时时间，下面的判断逻辑都不会走，不为0，那么我们开始遍历内核返回的事件集合 <strong><code>eventItems</code></strong>，根据类型执行不同的逻辑</p>
+<p><strong>step 2 ：</strong> 如果事件类型是消息队列的 <strong><code>eventfd</code></strong> ，说明有人向消息队列提交了需要马上执行的消息，我们只需把消息队列的 <strong><code>eventfd</code></strong> 数据读出来，使他重新变成可以触发 <strong><code>可读事件</code></strong> 的 <strong><code>fd</code></strong>，然后等待方法结束就行了</p>
+<p><strong>step 3 ：</strong> 事件不是消息队列的 <strong><code>eventfd</code></strong> ，说明有其他地方注册了监听 <strong><code>fd</code></strong>，那么，我们将发生的事件保存到 <strong><code>mResponses</code></strong> 集合中，待会需要对这个事件做出响应，通知注册对象</p>
+<p><strong>step 4 ：</strong> 遍历 Native 的消息集合 <strong><code>mMessageEnvelopes</code></strong>，检查每个消息的到期时间，如果消息到期了，交给 handler 执行分发，分发逻辑参考 Java Handler</p>
+<p><strong>step 5 ：</strong> 遍历 <strong><code>mResponses</code></strong> 集合，把其他地方注册的 <strong><code>自定义 fd</code></strong> 消费掉，响应它们的回调方法</p>
+<p>唤醒以后执行的步骤稍微有点多哈，我们把关键流程总结一下：</p>
+<p><strong>用户线程被唤醒后，优先执行 Native 层的消息分发，紧接着，回调通知<code>自定义 fd</code> 发生的事件（<em>如果有的话</em>），然后 <code>pollInner()</code> 方法结束，返回到 Java 层 <code>Looper#loop()</code> 方法。在 Looper 中最后执行到 Java 层的消息分发，只有当 Java Handler 执行完消息分发，一次 <code>loop()</code> 循环才算是完成</strong></p>
+<p><strong>再之后， <code>Looper#loop()</code> 会再一次进入循环，继续调用 <code>next()</code> 方法获取消息、阻塞到 <code>pollInner()</code> 、从 <code>pollInner()</code> 唤醒执行分发，执行结束接着进入下一次循环，无尽的轮回</strong></p>
+<p><strong><code>main</code> 线程的一生都将重复这一流程，直到 APP 进程结束运行..</strong></p>
+<h1 id="三-结语">三、结语</h1>
+<p>以上就是 Handler Native 世界的全部内容，主要介绍了 Java MessageQueue 中几个关键的 <strong>jni</strong> 方法在底层是如何实现的</p>
+<p>将全部的代码逻辑分析完以后，我们会发现 Native Handler 的实现不算复杂，关键的阻塞与唤醒部分是借助了 Linux 系统 <strong><code>epoll</code></strong> 机制来实现的</p>
+<p>所以，我们只要理解了 <strong><code>epoll</code></strong> 机制，再打开源码看看 <strong><code>Looper#pollInner()</code></strong> 中的内部逻辑，就能明白整个 Handler 机制是怎么一回事了</p>
+<p>本篇文章到这里就结束了，希望能对大家有帮助</p>
+<p><strong>全文完</strong></p>
+<h1 id="四-参考资料">四、参考资料</h1>
+<ul>
+<li><a href="https://long-zhou.github.io/2012/12/21/epoll-vs-kqueue.html">Scalable Event Multiplexing: epoll vs. kqueue</a></li>
+<li><a href="https://www.zhihu.com/question/20122137">epoll 或者 kqueue 的原理是什么？- 知乎 - 蓝形参的回答</a></li>
+<li><a href="https://www.viseator.com/2017/11/02/android_event_3/">Android 消息机制Native层消息机制 - 吴迪</a></li>
+<li><a href="https://www.cnblogs.com/schips/p/12543650.html">Linux 网络编程的5种IO模型：阻塞IO与非阻塞IO</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-graphics-application/" class="post-title gt-a-link">
+                    Android图形系统（四）应用篇：自定义View/ViewGroup详解
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

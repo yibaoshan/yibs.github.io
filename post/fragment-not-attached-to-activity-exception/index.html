@@ -1,0 +1,407 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>为什么会发生 Fragment not attached to Activity 异常？ | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    为什么会发生 Fragment not attached to Activity 异常？
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-11-04 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/natter/" class="post-tags">
+                            # 闲聊
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7162035153991106597">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<p>事情是这样的，前两天有位大佬在群里提了个问题，原文如下</p>
+<figure data-type="image" tabindex="1"><img src="https://yibaoshan.github.io//post-images/1667542593677.jpg" alt="" loading="lazy"></figure>
+<p>一个 Fragment 在点击按钮跳转一个新的 Activity 的时候，报崩溃异常：<strong>Fragment not attached to Activity</strong></p>
+<p>问：<strong>复现路径可能是什么样的呢？</strong></p>
+<h1 id="一-回答问题前先审题">一、回答问题前先审题</h1>
+<p>我们把这个问题的几个关键词圈出来</p>
+<p>首先，可以点击 Fragment 上的按钮，证明这个 Fragment 是可以被看到的，那肯定是处于存活的状态的</p>
+<p>其次，在跳转到新的 Activity 的时候发生崩溃，证明 Fragment 调用的是 <strong><code>startActivity()</code></strong> 方法</p>
+<p>最后，来看异常信息：<strong>Fragment not attached to Activity</strong></p>
+<p>这个报错我们都已经很熟悉了，在 <strong><code>onAttach()</code></strong> 之前，或者 <strong><code>onDetach()</code></strong> 之后，调用任何和 Context 相关的方法，都会抛出 &quot; <strong>not attached to Activity</strong> &quot; 异常</p>
+<p>发生的原因往往是因为异步任务导致的，比如一个网络请求回来以后，再调用了 <strong><code>startActivity()</code></strong> 进行页面跳转，或者调用 <strong><code>getResources()</code></strong> 获取资源文件等等</p>
+<p>解决方案也非常简单：在 Fragment 调用了 Context 相关方法前，先通过 <strong><code>isAdded()</code></strong> 方法检查 Fragment 的存活状态就完事了</p>
+<p>到这里，崩溃产生的原因找到了，解决方案也有了，似乎整篇文章就可以结束了</p>
+<p>但是，楼主问的是：<strong>复现路径可能是什么样的呢？</strong></p>
+<p>这勾起了我的好奇心，我也想知道可能的路径是怎样的</p>
+<p>于是，在接下来的两个晚上，笔者开始了一场源码之旅..</p>
+<h1 id="二-大胆假设小心求证">二、大胆假设，小心求证</h1>
+<p>审题结束我们就可以开始动手解答了，以下是群里的完整对话</p>
+<p>大佬：一个 Fragment 在点击按钮跳转一个新的 Activity 的时候，报崩溃异常：<strong>Fragment not attached to Activity</strong> 。复现路径可能是什么样的呢？</p>
+<p>我：这个问题之前在项目中也有碰到过，当时的解决方案是，通过调用 <strong><code>isAdded()</code></strong> 来检查 Fragment 是否还活着，来避免因为上下文为空导致的崩溃</p>
+<p>当时忙于做业务没有深入研究，现在趁着晚上有时间来研究一下下</p>
+<p>首先，打开 Fragment 源码，路径在：frameworks/base/core/java/android/app/Fragment.java</p>
+<p>用 “<strong>not attached to Activity</strong>” 作为关键字搜索，可以发现 <strong><code>getResources()</code></strong> 、<strong><code>getLoaderManager()</code></strong> 、<strong><code>startActivity()</code></strong> 等等共计 <strong>6</strong> 处地方，都可能抛出这个异常</p>
+<p>题目明确提到，是跳转 Activity 时发生的错误，那我们直接来看 <strong><code>startActivity()</code></strong> 方法</p>
+<pre><code class="language-java">class Fragment {
+    void startActivity(){
+        if (mHost == null)
+            throw new IllegalStateException(&quot;Fragment &quot; + this + &quot; not attached to Activity&quot;);
+    }
+}
+</code></pre>
+<p>从上面代码可以看出，当 <strong><code>mHost</code></strong> 对象为空时，程序抛出 <strong>Fragment not attached to Activity</strong> 异常</p>
+<p>好，现在我们的问题转变为:</p>
+<ol>
+<li><strong><code>mHost</code> 对象什么时候会被赋值？</strong></li>
+</ol>
+<p>很显然，如果在赋值前调用了 <code>startActivity()</code> 方法，那程序必然会崩溃</p>
+<ol start="2">
+<li><strong><code>mHost</code> 对象赋值以后，可能会被置空吗？如果会，什么时候发生？</strong></li>
+</ol>
+<p>我们都知道，Fragment 依赖 Activity 才能生存，那我们有理由怀疑：</p>
+<p>当 Activity 执行 <code>stop</code> / <code>destroy</code> ，或者，配置发生变化（比如屏幕旋转）导致 Activity 重建，会不会将 <strong><code>mHost</code></strong> 对象也置空呢？</p>
+<h2 id="mhost-对象什么时候会被赋值">mHost 对象什么时候会被赋值？</h2>
+<p>先来看第一个问题，<strong><code>mHost</code> 对象什么时候会被赋值？</strong></p>
+<p>平时我们使用 Fragment 开发时，通常都是直接 <strong>new</strong> 一个对象出来，然后再提交给 FragmentManager 去显示</p>
+<p>创建 Fragment 对象的时候，不要求传入 <strong><code>mHost</code></strong> 参数，那 <strong><code>mHost</code></strong> 对象只能是 Android 系统帮我们赋值的了</p>
+<p>得，又得去翻源码</p>
+<p>打开 FragmentManager.java ，路径在：/frameworks/base/core/java/android/app/FragmentManager.java</p>
+<pre><code class="language-java">class FragmentManager {
+
+    FragmentHostCallback mHost; // 内部持有 Context 对象，其本质是宿主 Activity
+    
+    void moveToState(f,newState){
+        switch(f.mState){
+            case Fragment.INITIALIZING:
+                f.mHost = mHost; // 赋值 Fragment 的 mHost 对象
+                f.onAttach(mHost.getContext());
+        }
+        f.mState = newState;
+    }
+}
+</code></pre>
+<p>我们发现源码里只有一个地方会给 <strong><code>mHost</code></strong> 对象赋值，在 <strong><code>FragmetnManager#moveToState()</code></strong> 方法中</p>
+<p>如果当前 Fragment 的状态是 <strong><code>INITIALIZING</code></strong> ，那么就把 FragmentManager 自身的 <strong><code>mHost</code></strong> 对象，赋值给 Fragment 的 <strong><code>mHost</code></strong> 对象</p>
+<p>这里多说一句，在 Android 系统中，一个 Activity 只会对应一个 FragmentManager 管理者。而 FragmentManager 中的 <strong><code>mHost</code></strong> ，其本质上就是 Activity 宿主。</p>
+<p>所以，这里把 FragmentManager 的 <strong><code>mHost</code></strong> 对象，赋值给了 Fragment ，就相当于 Fragment 也持有了宿主 Activity</p>
+<p>这也解释了我们之所以能在 Fragment 中调用 <strong><code>getResource()</code></strong> 、<strong><code>startActivity()</code></strong> 等需要 <strong><code>context</code></strong> 的才能访问方法，实际使用的就是 Activity 的上下文</p>
+<p>废话说完了，我们来聊正事</p>
+<p><strong><code>FragmentManager#moveToState()</code></strong> 方法会先去判断 Fragment 的状态，那我们首先得知道 Fragment 有哪几种状态</p>
+<pre><code class="language-java">class Fragment {
+
+    int INITIALIZING = 0;     // Not yet created.
+    int CREATED = 1;          // Created.
+    int ACTIVITY_CREATED = 2; // The activity has finished its creation.
+    ... // 共6种标识
+    
+    int mState = INITIALIZING; // 默认为 INITIALIZING
+}
+</code></pre>
+<p>Google 为 Fragment 共声明了6个状态标识符，各个标识符的含义看注释即可</p>
+<p>这里重点关注标识符下面的 <strong><code>mState</code></strong> 变量，它表示的是 Fragment 当前的状态，默认为 <strong><code>INITIALIZING</code></strong></p>
+<p>了解完 Fragment 的状态标识，我们回过头继续来看 <strong><code>FragmentManager#moveToState()</code></strong> 方法</p>
+<pre><code class="language-java">class FragmentManager {
+    void moveToState(f,newState){
+        switch(f.mState){
+            case Fragment.INITIALIZING: // 必走逻辑
+                f.mHost = mHost; // 赋值 Fragment 的 mHost 对象
+                f.onAttach(mHost.getContext());
+        }
+        f.mState = newState;
+    }    
+}
+
+</code></pre>
+<p>在 <strong><code>moveToState()</code></strong> 方法中，只要当前 Fragment 状态为 <strong><code>INITIALIZING</code></strong> ，即执行 <strong><code>mHost</code></strong> 的赋值操作</p>
+<p>巧了不是，前面刚说完，<strong><code>mState</code></strong> 默认值就是 <strong><code>INITIALIZING</code></strong></p>
+<p>也就是说，在第一次调用 <strong><code>moveToState()</code></strong> 方法时，不管接下来 Fragment 要转变成什么状态（<em>根据 <strong><code>newState</code></strong> 的值来判断</em>）</p>
+<p>首先，它都得从 <strong><code>INITIALIZING</code></strong> 状态变过去！那么，<strong><code>case = Fragment.INITIALIZING</code></strong> 这个分支必然会被执行！！这时候，<strong><code>mHost</code></strong> 也必然会被赋值！！！</p>
+<p>再然后，才会有 <strong><code>onAttach()</code></strong> / <strong><code>onCreate()</code></strong> / <strong><code>onStart()</code></strong> 等等这些生命周期的回调！</p>
+<p>因此，我们的第一个猜想：<strong>在 <code>mHost</code> 对象赋值前，有没有可能调用 startActivity() 方法？</strong></p>
+<p>答案显然是否定的</p>
+<p>因为，根据楼主描述，点击按钮以后才发生的崩溃，视图能显示出来，说明 <strong><code>mHost</code></strong> 已经赋值过并且生命周期都正常走</p>
+<p>那就只可能是点击按钮后，发生了什么事情，将 <strong><code>mHost</code></strong> 又置为 <strong>null</strong> 了</p>
+<h2 id="mhost-对象什么时候会被置空">mHost 对象什么时候会被置空？</h2>
+<p>继续，来看第二个问题：<strong><code>mHost</code> 对象赋值以后，可能会被置空吗？如果会，什么时候发生？</strong></p>
+<p>我们就不绕弯了，直接说答案，<strong>会！</strong></p>
+<p>置空 <strong><code>mHost</code></strong> 的逻辑，同样藏在 FragmentManager 的源码里：</p>
+<pre><code class="language-java">class FragmentManager {
+    
+    void moveToState(f,newState){
+        if (f.mState &lt; newState) {
+            switch(f.mState){
+                case Fragment.INITIALIZING:
+                    f.mHost = mHost; // mHost 对象赋值
+            }
+        } else if (f.mState &gt; newState) {
+            switch (f.mState) {
+                case Fragment.CREATED:
+                    if (newState &lt; Fragment.CREATED) {
+                        f.performDetach(); // 调用 Fragment 的 onDetach()
+                      	if (!f.mRetaining) {
+                          	makeInactive(f); // 重点1号，这里会清空 mHost
+                         } else {
+                            f.mHost = null; // 重点2号，这里也会清空 mHost 对象
+                         }
+                    }
+            }
+        }
+        f.mState = newState;
+    }
+    
+    void makeInactive(f) {
+        f.initState(); // 此调用会清空 Fragment 全部状态，包括 mHost
+    }
+}
+</code></pre>
+<p>看上面的代码，分发 Fragment 的 <strong><code>performDetach()</code></strong> 方法后，紧接着就会把 <code>mHost</code> 对象置空！</p>
+<p>标记为 &quot;<strong><code>重点1号</code></strong>&quot; 和 &quot;<strong><code>重点2号</code></strong>&quot; 的代码都会执行了置空 <strong><code>mHost</code></strong> 对象的逻辑，两者的区别是：</p>
+<p>Fragment 有一个保留实例的接口 <strong><code>setRetainInstance(bool)</code></strong> ，如果设置为 true ，那么在销毁重建 Activity 时，不会销毁该 Fragment 的实例对象</p>
+<p>当然这不是本节的重点，我们只需要知道：<strong>执行完 <code>performDetach()</code> 方法后，无论如何，<code>mHost</code> 也都活不了了</strong></p>
+<p>那，什么动作会触发 <strong><code>performDetach()</code></strong> 方法？</p>
+<h3 id="1-activity-销毁重建"><strong>1、Activity 销毁重建</strong></h3>
+<p>不管因为什么原因，只要 Activity 被销毁，Fragment 也不能独善其身，所有的 Fragment 都会被一起销毁，对应的生命周期如下：</p>
+<blockquote>
+<p><code>Activity#onDestroy()</code> -&gt; <code>Fragment#onDestroyView(</code>) - &gt; <code>Fragment#onDestroy()</code> - &gt;<code>Fragment#onDetach()</code></p>
+</blockquote>
+<h3 id="2-调用-fragmenttransactionremove-方法移除-fragment"><strong>2、调用 <code>FragmentTransaction#remove()</code> 方法移除 Fragment</strong></h3>
+<p><strong><code>remove()</code></strong> 方法会移除当前的 Fragment 实例，如果这个 Fragment 正在屏幕上显示，那么 Android 会先移除视图，对应的生命周期如下：</p>
+<blockquote>
+<p><code>Fragment#onPause()</code> -&gt; <code>onStop()</code> -&gt; <code>onDestroyView()</code> - &gt; <code>onDestroy()</code> - &gt;<code>onDetach()</code></p>
+</blockquote>
+<h3 id="3-调用-fragmenttransactionreplace-方法显示新的-fragment"><strong>3、调用 <code>FragmentTransaction#replace()</code> 方法显示新的 Fragment</strong></h3>
+<p><strong><code>replace()</code></strong> 方法会将所有的 Fragment 实例对象都移除掉，只会保留当前提交的 Fragment 对象，生命周期参考 <strong><code>remove()</code></strong> 方法</p>
+<p>以上三种场景，是我自己做测试得出来的结果，应该还有其他没测出来的场景，欢迎大佬补充</p>
+<p>另外，FragmentTransaction 中还有两个常用的 <strong><code>detach()</code></strong> / <strong><code>hide()</code></strong> 方法，它俩只会将视图移除或隐藏，而不会触发 <strong><code>performDetach()</code></strong> 方法</p>
+<h2 id="真相永远只有一个">真相永远只有一个</h2>
+<p>好了，现在我们知道了 <strong><code>mHost</code></strong> 对象置空的时机，答案已经越来越近了</p>
+<p>我们先来汇总下已有的线索</p>
+<p>从 FragmentManager 源码来看，只要我们的 <strong><code>startActivity()</code></strong> 页面跳转逻辑写在：</p>
+<p><strong><code>onAttach()</code> 方法执行之后 ，<code>onDetach()</code> 方法执行之前</strong></p>
+<p>那结果一定总是能够跳转成功，不会报错！</p>
+<p>那么问题就来了</p>
+<p><strong><code>onAttach()</code> 之前，视图不存在，<code>onDetach()</code> 之后，视图都已经销毁了，还点击哪门子按钮？</strong></p>
+<p>这句话翻译一下就是：</p>
+<p><strong>视图在，Activity 在，点击事件正常响应</strong></p>
+<p><strong>视图不在，按钮也不在了呀，也就不存在页面跳转了</strong></p>
+<p>这样看起来，似乎永远不会出现楼主说的错误嘛</p>
+<p>除非。。。</p>
+<p><strong>执行 <code>startActivity()</code> 方法的时候，视图已经不在了！！！</strong></p>
+<p>这听起来很熟悉，ummmmmm。。这不就是异步调用吗？</p>
+<pre><code class="language-java">class Fragment {
+    void onClick(){
+      	//do something
+        Handler().postDelayed(startActivity(),1000);
+    }
+}
+
+</code></pre>
+<p>上面是一段异步调用的演示代码，为了省事我直接用 Handler 提交了延迟消息</p>
+<p>当用户点击跳转按钮后，一旦发生 Activity 销毁重建，或者 Fragment 被移除的情况</p>
+<p>等待 1s 执行 <strong><code>startActivity()</code></strong> 方法时，程序就会发生崩溃，这时候终于可以看到我们期待已久的异常：<strong>Fragment not attached to Activity</strong></p>
+<p>为什么会这样？熟悉 Java 的小伙伴这里肯定要说了，因为提交到 Handler 的 Runnable 会持有外部类呀，也就是宿主 Fragment 的引用。如果在执行 <strong><code>Runnable#run()</code></strong> 方法之前， Fragment 的 <strong><code>mHost</code></strong> 被清空，那程序肯定会发生崩溃的</p>
+<p>那我们怎么样才能防止程序崩溃呢？</p>
+<ul>
+<li>
+<p><strong>要么，同步执行 Context 相关方法</strong></p>
+</li>
+<li>
+<p><strong>要么，异步判空，用到 Context 前调用 <code>isAdded()</code> 方法检查 Fragment 存活状态</strong></p>
+</li>
+</ul>
+<h1 id="三-结语">三、结语</h1>
+<p>呼~ 这下总算是理清了，我们来尝试回答楼主的问题：<strong>发生 not attached to Activity，可能路径是怎样的？</strong></p>
+<p>首先，必然存在一个异步任务持有 Fragment 引用，并且内部调用了 <strong><code>startActivity()</code></strong> 方法。</p>
+<p>在这个异步任务提交之后，执行之前，一旦发生了下面列表中，一个或多个的情况时，程序就会抛出  <strong>not attached to Activity</strong> 异常：</p>
+<ul>
+<li><strong>调用 <code>finishXXX()</code> 结束了 Activity，导致 Activity 为空</strong></li>
+<li><strong>手动调用 <code>Activity#recreate()</code> 方法，导致 Activity 重建</strong></li>
+<li><strong>旋转屏幕、键盘可用性改变、更改语言等配置更改，导致 Activity 重建</strong></li>
+<li><strong>向 FragmentManager 提交 <code>remove()</code> / <code>replace()</code> 请求，导致 Fragment 实例被销毁</strong></li>
+<li><strong>...</strong></li>
+</ul>
+<p>最后，发生这个错误信息的本质，是在 Activity 、Fragment 销毁时，没有同步取消异步任务，这是内存泄漏啊</p>
+<p>所以，除了使用 <strong><code>isAdded()</code></strong> 方法判空，避免程序崩溃外，更应该排查哪里可能会长时间引用该 Fragment</p>
+<p>如果可能，在 Fragment 的 <strong><code>onDestroy()</code></strong> 方法中，取消异步任务，或者，把 Fragment 改为弱引用</p>
+<h1 id="四-参考资料">四、参考资料</h1>
+<ul>
+<li><a href="http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/app/Fragment.java">android-7.1 - Fragment</a></li>
+<li><a href="http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/app/FragmentManager.java">android-7.1 - FragmentManager</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-components-handler-native/" class="post-title gt-a-link">
+                    Android组件系列：再谈Handler机制（Native篇）
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

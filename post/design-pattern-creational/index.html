@@ -1,0 +1,860 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>漫谈设计模式（一）：创建型模式 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    漫谈设计模式（一）：创建型模式
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-12-17 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/design-pattern/" class="post-tags">
+                            # 设计模式
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7043951828144226341">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<h2 id="一-前言">一、前言</h2>
+<p><code>创建型模式</code>对类的实例化过程进行了抽象，能够将软件模块中对象的创建和对象的使用分离。<br>
+为了使软件的结构更加清晰，外界对于这些对象只需要知道它们共同的接口，而不清楚其具体的实现细节，使整个系统的设计更加符合单一职责原则。</p>
+<figure data-type="image" tabindex="1"><img src="https://yibaoshan.github.io//post-images/1647413411556.jpg" alt="" loading="lazy"></figure>
+<p>简单来讲，相较于另外两种类型(<code>结构型</code>和<code>行为型</code>)，<code>创建型模式</code>的侧重点在于如何创建对象</p>
+<p>本文会简单介绍几种常见的<code>创建型模式</code>：</p>
+<ol>
+<li>单例模式</li>
+<li>工厂模式</li>
+<li>建造者模式</li>
+</ol>
+<p>注意，<a href="https://www.runoob.com/design-pattern/prototype-pattern.html">原型模式</a>不包含在本文中，想要了解更多的可以自行冲浪搜索</p>
+<h2 id="二-创建型模式单例模式">二、创建型模式：单例模式</h2>
+<h3 id="1-模式定义">1、模式定义</h3>
+<p><code>单例模式</code>的目的是保证一个类仅有一个实例，并提供一个访问它的全局访问点。<br>
+单例类拥有一个私有构造函数，确保用户无法通过<code>new</code>关键字直接实例化它。<br>
+除此之外，该模式中包含一个静态私有成员变量与静态公有的工厂方法。<br>
+该工厂方法负责检验实例的存在性并<code>实例化</code>自己，然后存储在静态成员变量中，以确保只有一个<code>实例</code>被创建。</p>
+<p><img src="https://yibaoshan.github.io//post-images/1639997001271.png" alt="" loading="lazy"><br>
+<em>图片来源：自己画的</em></p>
+<h3 id="2-使用方法">2、使用方法</h3>
+<p>单例使用方法简单，理解起来也比较容易，笔者这里就直接开门见山，介绍四种常见的使用方式</p>
+<h4 id="21-饿汉式">2.1 饿汉式</h4>
+<pre><code class="language-java">public class Singleton1 {
+
+    private static final Singleton1 instance = new Singleton1();
+
+    public Singleton1() {
+    }
+
+    public static Singleton1 getInstance() {
+        return instance;
+    }
+
+    public void doSomething() {
+    		//doSomething
+    }
+
+}
+</code></pre>
+<p><code>饿汉式</code>是常见使用方法中最简单的一种，<code>JVM类加载机制</code>得以保证类加载过程中是线程安全的，所以多线程环境下使用也是没问题的</p>
+<p><code>饿汉式</code>单例模式唯一的问题可能就是：并非懒加载，只要单例类被虚拟机加载，就必然会创建<code>instance</code>实例。此时，若是被提前初始化的示例工程中用不到，那的确是白白消耗了初始化的时间和内存空间</p>
+<p>不过考虑到<code>单例模式</code>的使用场景，笔者认为大多数情况下使用<code>饿汉式</code>并不会给项目带来多余的负担。</p>
+<h4 id="22-懒汉式静态内部类">2.2 懒汉式：静态内部类</h4>
+<pre><code class="language-java">public class Singleton2 {
+
+    private Singleton2() {
+
+    }
+
+    public static Singleton2 getInstance() {
+        return SingletonHolder.instance;
+    }
+
+    private static class SingletonHolder {
+        private static final Singleton2 instance = new Singleton2();
+    }
+
+    public void doSomething() {
+    		//doSomething
+    }
+
+}
+</code></pre>
+<p>和<code>2.1</code>的代码示例相同，静态内部类同样由<code>JVM类加载机制</code>保证了多线程环境下的安全性；同时，由于没有在局部变量中声明，所以就算因为非主观因素导致单例类被虚拟机加载，也无需担心创建了暂时用不到的对象导致占用内存。</p>
+<p><code>静态内部类</code>的单例模式既能保证多线程环境下的安全又实现了懒加载，代码写起来比较方便，这也是笔者个人比较喜欢用的一种方式</p>
+<h4 id="23-懒汉式双重校验锁dcl">2.3 懒汉式：双重校验锁DCL</h4>
+<pre><code class="language-java">public class Singleton3 {
+
+    private volatile static Singleton3 instance;
+
+    private Singleton3() {
+    }
+
+    public static Singleton3 getInstance() {
+        if (instance == null) {
+            synchronized (Singleton3.class) {
+                if (instance == null) {
+                    instance = new Singleton3();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void doSomething() {
+    		//doSomething
+    }
+
+}
+</code></pre>
+<p><code>DCL(DoubleCheckLock)双重校验锁</code>可能是所有<code>单例模式</code>中传播最广的方式了，这也是笔者在工作早期接触最多的单例模式；<code>DCL双重检验锁</code>的方式把线程安全和懒加载都考虑到了，并且涉及到Java<code>并发编程</code>中两个比较重要的关键字：<code>volatile</code>和<code>synchronized</code>，相较于上面的两种示例，<code>DCL</code>可以拎出来的点比较多，笔者猜测可能这也是为什么<code>DCL</code>传播这么广的原因</p>
+<p>在实际的项目开发中如果不觉得使用步骤较为繁琐，代码量可以接受的话，<code>DCL</code>也是比较推荐的一种使用方式</p>
+<p>注：关于<code>DCL双重校验锁</code>要不要加<code>volatile</code>关键字取决于Java版本，在<code>jdk8</code>中已经确保new、初始化为原子性操作，不会出现JIT导致指令重排的情况，想了解更多的朋友请点击[这里]</p>
+<h4 id="24-枚举类">2.4 枚举类</h4>
+<pre><code class="language-java">public enum Singleton4 {
+    
+    getInstance();
+
+    public void doSomething() {
+    		//doSomething
+    }
+
+}
+</code></pre>
+<p>Java1.5以后，<code>单例模式</code>的实现方式终于迎来的新面孔：枚举类单例，这也是《Effective Java》作者Joshua 力荐的一种使用方式</p>
+<p><code>枚举类</code>是没有构造方法的，<code>枚举类</code>的创建完全由<code>JVM</code>内部实现，不对外开放。这样的特性也使得我们不能使用<code>new</code>的方式来创建枚举对象，对应的缺点就是<code>枚举类</code>的<code>单例模式</code>不是懒加载的</p>
+<p><code>枚举类</code>单例除了能保证线程安全外，还加入了新功能：防止单例模式被破坏，原因有两点：</p>
+<ol>
+<li>
+<p><code>枚举类</code>无法被反射创建</p>
+<p>强行使用反射创建会收到错误：java.lang.IllegalArgumentException: Cannot reflectively create enum objects</p>
+</li>
+<li>
+<p><code>枚举类</code>不能被反序列化</p>
+<p>序列化的时候，仅仅是将枚举对象的name属性输出到结果中，反序列化的时候则是通过java.lang.Enum的valueOf方法来根据名字查找枚举对象。</p>
+<p>同时，编译器是不允许任何对这种序列化机制的定制的，因此禁用了writeObject、readObject、readObjectNoData、writeReplace和readResolve等方法。</p>
+</li>
+</ol>
+<p>最后，关于<code>枚举类</code>还有一点需要注意：<code>枚举类</code>不能继承任何类，<code>枚举类</code>在编译后会继承自java.lang.Enum，由于Java<code>单继承</code>的特性导致枚举类不能再继承任何其他类，但是<code>枚举类</code>可以实现<code>接口</code></p>
+<h3 id="3-破坏单例模式及防止破坏单例">3、破坏单例模式及防止破坏单例</h3>
+<p>正如<code>2.4</code>小节中提到的，除了<code>枚举类单例</code>外，其他的三种<code>单例模式</code>都可以通过使用反射来破坏在进程中的唯一性</p>
+<p><code>单例类</code>由于自身的特殊性导致无法被<code>反射</code>和<code>反序列化</code>创建，所以对象的唯一性暂时无法被破坏，但是可以修改枚举类的值</p>
+<p>笔者这里写了一个简单的示例代码来破坏单例，感兴趣的朋友也可以自己在单元测试中试一试</p>
+<pre><code class="language-java">
+    @Test
+    public void main() {
+        testSingleton1();
+        testSingleton2();
+        testSingleton3();
+    }
+
+    /*1.恶汉模式*/
+    private static void testSingleton1() {
+        Object fromInstance = Singleton1.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton1.class);
+        System.out.println(fromInstance.equals(fromReflect));
+    }
+
+    /*2.懒汉模式-静态内部类*/
+    private static void testSingleton2() {
+        Object fromInstance = Singleton2.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton2.class);
+        System.out.println(fromInstance.equals(fromReflect));
+    }
+
+    /*3.懒汉模式-DoubleCheckLock*/
+    private static void testSingleton3() {
+        Object fromInstance = Singleton3.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton3.class);
+        System.out.println(fromInstance.equals(fromReflect));
+    }
+
+    private static &lt;T&gt; T createClassWithReflect(Class&lt;T&gt; clz) {
+        Constructor&lt;?&gt; constructor = clz.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        return (T) constructor.newInstance();
+    }
+
+</code></pre>
+<p>打印结果</p>
+<pre><code class="language-java">false
+false
+false
+</code></pre>
+<p>从打印结果可以看出，除<code>枚举类</code>外的三种实现方式全部沦陷，都可以通过<code>反射</code>来创建不同的实例对象来破坏<code>单例模式</code>的唯一性</p>
+<p><code>反射</code>创建<code>枚举类</code>会受到报错信息：java.lang.IllegalArgumentException: Cannot reflectively create enum objects，笔者这里就不展示了，感兴趣的同学可以自己动手试一试</p>
+<p>最后提一句，网上其他文章提到了使用<code>clone</code>方法来破坏单例，笔者认为这点不成立，因为不重写<code>clone()</code>方法并且不将访问修饰符改为<code>public</code>，使用者是无法调用<code>clone</code>方法来创建新的<code>实例对象</code>的</p>
+<h3 id="4-小结">4、小结</h3>
+<p>至此，几种常见的<code>单例模式</code>实现方式都介绍完了，简单总结下：上述几种实现方式都可以在保证多线程环境下安全性；除了<code>枚举单例</code>之外，其他几种方式的<code>单例模式</code>都可以被破坏</p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/singleton">这里</a></p>
+<h2 id="三-创建型模式工厂方法">三、创建型模式：工厂方法</h2>
+<h3 id="1-模式定义-2">1、模式定义</h3>
+<p><code>工厂方法</code>模式又称为工厂模式，在<code>工厂方法</code>模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生成具体的产品对象，这样做的目的是将产品类的<code>实例化</code>操作延迟到工厂子类中完成，即通过工厂子类来确定究竟应该实例化哪一个具体产品类。</p>
+<p>工厂方法模式包含四个角色：</p>
+<ol>
+<li><code>抽象产品</code>是定义产品的接口，是工厂方法模式所创建对象的超类型，即产品对象的共同父类或接口；</li>
+<li><code>具体产品</code>实现了抽象产品接口，某种类型的具体产品由专门的具体工厂创建，它们之间往往一一对应；</li>
+<li><code>抽象工厂</code>中声明了工厂方法，用于返回一个产品，它是工厂方法模式的核心，任何在模式中创建对象的工厂类都必须实现该接口；</li>
+<li><code>具体工厂</code>是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户调用，返回一个具体产品类的实例。</li>
+</ol>
+<figure data-type="image" tabindex="2"><img src="https://yibaoshan.github.io//post-images/1648175218683.jpg" alt="" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<h3 id="2-代码示例">2、代码示例</h3>
+<p><strong>角色1：抽象产品类</strong></p>
+<pre><code class="language-java">public abstract class AbstractProduct {
+
+    public abstract String getName();
+
+}
+</code></pre>
+<p><strong>角色2：产品实现类</strong></p>
+<pre><code class="language-java">public class ProductA extends AbstractProduct {
+
+    @Override
+    public String getName() {
+        return &quot;A&quot;;
+    }
+
+}
+
+public class ProductB extends AbstractProduct {
+
+    @Override
+    public String getName() {
+        return &quot;B&quot;;
+    }
+
+}
+</code></pre>
+<p><strong>角色3：抽象工厂类</strong></p>
+<pre><code class="language-java">public abstract class AbstractFactory {
+
+    public abstract AbstractProduct createProduct();
+
+}
+</code></pre>
+<p><strong>角色4：工厂实现类</strong></p>
+<pre><code class="language-java">public class ProductAFactory extends AbstractFactory {
+
+    @Override
+    public AbstractProduct createProduct() {
+        return new ProductA();
+    }
+  
+}
+
+public class ProductBFactory extends AbstractFactory {
+
+    @Override
+    public AbstractProduct createProduct() {
+        return new ProductB();
+    }
+  
+}
+</code></pre>
+<p><strong>工厂方法使用示例</strong></p>
+<pre><code class="language-java">@Test
+public void main() {
+    AbstractFactory factoryA = new ProductAFactory();
+    AbstractFactory factoryB = new ProductBFactory();
+
+    AbstractProduct productA = factoryA.createProduct();
+    AbstractProduct productB = factoryB.createProduct();
+
+    System.out.println(&quot;工厂A生产的产品名称：&quot; + productA.getName());
+    System.out.println(&quot;工厂B生产的产品名称：&quot; + productB.getName());
+
+}
+</code></pre>
+<p><strong>打印结果</strong></p>
+<pre><code class="language-jav">工厂A生产的产品名称：A
+工厂B生产的产品名称：B
+</code></pre>
+<h3 id="3-源码锚点">3、源码锚点</h3>
+<p>从本小节开始，笔者将会对每种设计模式都以Java/Android源码举例说明，用<code>锚点记忆法</code>来辅助记忆；比如提起<code>建造者模式</code>就像到<code>Android AlertDialog</code>，提到<code>观察者模式</code>就想到<code>OnClickListener</code>一样</p>
+<p><code>工厂模式</code>在源码中的提现，我们可以记住<code>Java容器类</code>的迭代器：Iterator</p>
+<p>为了加深记忆，我们这里简单剖析使用工厂方法<code>迭代器</code>的角色分工：</p>
+<ol>
+<li><strong>抽象工厂</strong>
+<ol>
+<li>Iterable</li>
+</ol>
+</li>
+<li><strong>工厂实现</strong>
+<ol>
+<li>ArrayList</li>
+<li>HashMap</li>
+</ol>
+</li>
+<li><strong>抽象产品</strong>
+<ol>
+<li>Iterator</li>
+</ol>
+</li>
+<li><strong>产品实现</strong>(jdk1.8)
+<ol>
+<li>ArrayList中的Itr类</li>
+<li>HashMap中的EntryIterator/KeyIterator/ValueIterator类</li>
+</ol>
+</li>
+</ol>
+<p>从上面的结构来看，<code>ArrayList</code>和<code>HashMap</code>中的<code>iterator</code>方法其实就相当于一个<code>工厂方法</code>，专为<code>new</code>对象而生，这里<code>iterator</code>方法是构造并返回一个具体的<code>迭代器</code></p>
+<h3 id="4-小结-2">4、小结</h3>
+<p><code>工厂方法</code>模式的主要优点是增加新的产品类时无须修改现有系统，并封装了产品对象的创建细节，系统具有良好的灵活性和可扩展性；其缺点在于增加新产品的同时需要增加新的工厂，导致系统类的个数成对增加，在一定程度上增加了系统的复杂性</p>
+<p>笔者这里没有提到<code>简单工厂</code>，实际上，当把<code>工厂方法</code>的抽象工厂类删除掉，就是<code>简单工厂</code>模式了，所以可以把<code>简单工厂</code>理解为<code>工厂方法</code>的简化版本；笔者这里没有给出示例，想要了解更多的可以去看<code>阿里巴巴淘系技术</code>在知乎上的回答：<a href="https://www.zhihu.com/question/27125796">简单工厂模式、工厂方法模式和抽象工厂模式有何区别</a></p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/factorymethod">这里</a></p>
+<h2 id="四-创建型模式抽象工厂">四、创建型模式：抽象工厂</h2>
+<h3 id="1-模式定义-3">1、模式定义</h3>
+<p><code>抽象工厂</code>模式是所有形式的工厂模式中最为抽象和最具一般性的一种形态。<code>抽象工厂</code>模式与<code>工厂方法</code>模式最大的区别在于，<code>工厂方法</code>模式针对的是一个产品等级结构，而<code>抽象工厂</code>模式则需要面对多个产品等级结构</p>
+<p><code>抽象工厂</code>模式同样包含四个角色：</p>
+<ol>
+<li><code>抽象工厂</code>用于声明生成抽象产品的方法；</li>
+<li><code>具体工厂</code>实现了抽象工厂声明的生成抽象产品的方法，生成一组具体产品，这些产品构成了一个产品族，每一个产品都位于某个产品等级结构中；</li>
+<li><code>抽象产品</code>为每种产品声明接口，在抽象产品中定义了产品的抽象业务方法；</li>
+<li><code>具体产品</code>定义具体工厂生产的具体产品对象，实现抽象产品接口中定义的业务方法。</li>
+</ol>
+<p>虽然<code>抽象工厂</code>的角色数量和<code>工厂方法</code>相同，都是4个，但由于每个角色下还有其他角色，理解起来就会稍微有点费劲，这一点也可以从<code>抽象工厂</code>和<code>工厂方法</code>的<code>UML类图</code>看出来区别，<code>抽象工厂</code>明显更复杂一些</p>
+<p>由于<code>抽象工厂</code>稍微有点复杂，不能再用上面的ProductA、FactoryB等无实际意义的类名来举例，为了方便理解，笔者这里使用<code>手机组装厂</code>来做类比，他们的角色分工如下：</p>
+<ol>
+<li><strong>抽象产品</strong>
+<ol>
+<li>电池组装厂</li>
+<li>屏幕组装厂</li>
+</ol>
+</li>
+<li><strong>具体产品实现</strong>
+<ol>
+<li>电池
+<ol>
+<li>比亚迪电池供应商</li>
+<li>德赛电池供应商</li>
+</ol>
+</li>
+<li>屏幕
+<ol>
+<li>京东方屏幕供应商</li>
+<li>LG屏幕供应商</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>抽象工厂</strong>
+<ol>
+<li>手机组装厂</li>
+</ol>
+</li>
+<li><strong>具体工厂实现</strong>
+<ol>
+<li>华为P50的组装厂</li>
+<li>小米10的组装厂</li>
+</ol>
+</li>
+</ol>
+<p>有了上面的角色分工结构，在下面代码示例我们就直接对号入座，这样的方式可能会方便理解</p>
+<p><img src="https://yibaoshan.github.io//post-images/1648175241502.jpg" alt="" loading="lazy"><br>
+<em>图片来源：自己画的</em></p>
+<h3 id="2-代码示例-2">2、代码示例</h3>
+<p><strong>角色1-1：抽象产品类-电池</strong></p>
+<pre><code class="language-java">public abstract class AbstractProductBattery {
+
+    public AbstractProductBattery() {
+        createBattery();
+    }
+
+    public abstract String getBatteryName();
+
+    protected abstract void createBattery();
+
+}
+</code></pre>
+<p><strong>角色1-2：抽象产品类-屏幕</strong></p>
+<pre><code class="language-java">public abstract class AbstractProductScreen {
+
+    public AbstractProductScreen() {
+        createScreen();
+    }
+
+    public abstract String getScreenName();
+
+    protected abstract void createScreen();
+
+}
+</code></pre>
+<p><strong>角色2-1-1：产品实现类-电池-比亚迪</strong></p>
+<pre><code class="language-java">public class BYDBattery extends AbstractProductBattery {
+
+    @Override
+    public String getBatteryName() {
+        return &quot;比亚迪(BYD)&quot;;
+    }
+
+    @Override
+    protected void createBattery() {
+        System.out.println(&quot;加班加点生产比亚迪电池中...&quot;);
+    }
+}
+</code></pre>
+<p><strong>角色2-1-2：产品实现类-电池-德赛</strong></p>
+<pre><code class="language-java">public class DesayBattery extends AbstractProductBattery {
+
+    @Override
+    public String getBatteryName() {
+        return &quot;德赛(Desay)&quot;;
+    }
+
+    @Override
+    protected void createBattery() {
+        System.out.println(&quot;加班加点生产德赛电池中...&quot;);
+    }
+}
+</code></pre>
+<p><strong>角色2-2-1：产品实现类-屏幕-京东方</strong></p>
+<pre><code class="language-java">public class BOEScreen extends AbstractProductScreen {
+
+    @Override
+    public String getScreenName() {
+        return &quot;京东方(BOE)&quot;;
+    }
+
+    @Override
+    protected void createScreen() {
+        System.out.println(&quot;加班加点生产京东方屏幕中...&quot;);
+    }
+
+}
+</code></pre>
+<p><strong>角色2-2-2：产品实现类-屏幕-LG</strong></p>
+<pre><code class="language-java">public class LGScreen extends AbstractProductScreen {
+
+    @Override
+    public String getScreenName() {
+        return &quot;LG&quot;;
+    }
+
+    @Override
+    protected void createScreen() {
+        System.out.println(&quot;加班加点生产LG屏幕中...&quot;);
+    }
+
+}
+</code></pre>
+<p><strong>角色3：抽象工厂类</strong></p>
+<pre><code class="language-java">public abstract class AbstractPhoneFactory {
+
+    protected String brand;//工厂生产的手机品牌
+    protected String model;//工厂生产的手机型号
+    protected AbstractProductScreen phoneScreen;//手机使用的屏幕
+    protected AbstractProductBattery phoneBattery;//使用的电池
+
+    public AbstractPhoneFactory(String brand, String model) {
+        this.brand = brand;
+        this.model = model;
+        this.phoneScreen = createPhoneScreen();
+        this.phoneBattery = createPhoneBattery();
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public AbstractProductScreen getPhoneScreen() {
+        return phoneScreen;
+    }
+
+    public AbstractProductBattery getPhoneBattery() {
+        return phoneBattery;
+    }
+
+    protected abstract AbstractProductScreen createPhoneScreen();
+
+    protected abstract AbstractProductBattery createPhoneBattery();
+}
+</code></pre>
+<p><strong>角色4-1：工厂实现类-华为</strong></p>
+<pre><code class="language-java">public class HuaWeiPhoneFactory extends AbstractPhoneFactory {
+
+    public HuaWeiPhoneFactory() {
+        super(&quot;华为(HuaWei)&quot;, &quot;P50&quot;);
+    }
+
+    @Override
+    protected AbstractProductScreen createPhoneScreen() {
+        return new LGScreen();//Lg屏幕
+    }
+
+    @Override
+    protected AbstractProductBattery createPhoneBattery() {
+        return new DesayBattery();//德赛的电池
+    }
+}
+</code></pre>
+<p><strong>角色4-2：工厂实现类-小米</strong></p>
+<pre><code class="language-java">public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
+
+    public XiaoMiPhoneFactory() {
+        super(&quot;小米(XiaoMi)&quot;, &quot;10&quot;);
+    }
+
+    @Override
+    protected AbstractProductScreen createPhoneScreen() {
+        return new BOEScreen();//京东方的屏幕
+    }
+
+    @Override
+    protected AbstractProductBattery createPhoneBattery() {
+        return new DesayBattery();//德赛电池
+    }
+}
+</code></pre>
+<p><strong>抽象工厂使用示例</strong></p>
+<pre><code class="language-java">    public void main() {
+        AbstractPhoneFactory phoneFactory1 = new HuaWeiPhoneFactory();
+        AbstractPhoneFactory phoneFactory2 = new XiaoMiPhoneFactory();
+        print(phoneFactory1);
+        print(phoneFactory2);
+    }
+
+    private void print(AbstractPhoneFactory phoneFactory) {
+        System.out.println(&quot;产线品牌：&quot; + phoneFactory.getBrand()
+                + &quot;,生产型号：&quot; + phoneFactory.getModel()
+                + &quot;,电池厂商：&quot; + phoneFactory.getPhoneBattery().getBatteryName()
+                + &quot;,屏幕厂商：&quot; + phoneFactory.getPhoneScreen().getScreenName());
+    }
+</code></pre>
+<p><strong>打印结果</strong></p>
+<pre><code class="language-java">产线品牌：华为(HuaWei),生产型号：P50,电池厂商：德赛(Desay),屏幕厂商：LG
+产线品牌：小米(XiaoMi),生产型号：10,电池厂商：德赛(Desay),屏幕厂商：京东方(BOE)
+</code></pre>
+<p>从打印结果可以看到，小米和华为都是用德赛的电池，但屏幕供应商用的不是同一家<br>
+若我们想增加一个产品线，只需要想小米和华为工厂一样，继承/实现<code>AbstractPhoneFactory</code>抽象工厂类即可，每个零件来自哪个供应商可以随便选择；相同的，我们也可以增加供应商来丰富我们的产品，这就是<code>抽象工厂</code>模式带来的好处</p>
+<h3 id="3-源码锚点-2">3、源码锚点</h3>
+<p><code>抽象工厂</code>方法模式在Android源码中的实现相对来说是比较少的，在<code>《Android 源码设计模式解析与实战》</code>一书中提到是Android底层对<code>MediaPlayer</code>的创建是可以看作为<code>抽象工厂</code>，这一块代码笔者不熟悉，为了防止误人子弟，<code>抽象工厂</code>模式的源码这里笔者就不再举例，对<code>抽象工厂</code>源码体现感兴趣的可以自行查找其他资料</p>
+<h3 id="4-小结-3">4、小结</h3>
+<p><code>抽象工厂</code>模式的主要优点是隔离了具体类的生成，使得客户并不需要知道什么被创建，而且每次可以通过具体工厂类创建一个产品族中的多个对象，增加或者替换产品族比较方便，增加新的具体工厂和产品族很方便；主要缺点在于增加新的产品等级结构很复杂，需要修改抽象工厂和所有的具体工厂类，对“开闭原则”的支持呈现倾斜性。</p>
+<p>笔者个人总结的<code>抽象工厂</code>和<code>工厂方法</code>不同点：<code>抽象工厂</code>模式拥有多个<code>抽象产品</code>类，也就是本示例的电池抽象类和屏幕抽象类</p>
+<p><code>抽象工厂</code>模式适用情况包括：一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节；系统中有多于一个的产品族，而每次只使用其中某一产品族；属于同一个产品族的产品将在一起使用；系统提供一个产品类的库，所有的产品以同样的接口出现，从而使客户端不依赖于具体实现。</p>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/abstractfactory">这里</a></p>
+<h2 id="五-创建型模式建造者模式">五、创建型模式：建造者模式</h2>
+<h3 id="1-模式定义-4">1、模式定义</h3>
+<p><code>建造者模式</code>将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。<code>建造者模式</code>是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节</p>
+<p>下面我们以Android中创建一个弹窗类来举例，该类有以下几个特性：</p>
+<ul>
+<li>弹窗类有左右两个按钮，标题和内容共四个属性，弹窗类提供<code>Builder类</code>来组装自己</li>
+<li>一旦弹窗被创建，左右两个按钮文字不希望被更改，也就说<code>Dialog</code>本身不提供修改左右按钮的方法</li>
+<li><code>Builder</code>提供不同的创建方法，比如：创建左右两个按钮的弹窗、只有确认按钮的弹窗，创建过程由Builder来管理</li>
+</ul>
+<p>建造者模式理解起来也比较容易，我们接下来康康<code>5.2</code>中的代码示例</p>
+<h3 id="2-代码示例-3">2、代码示例</h3>
+<pre><code class="language-java">public class CommonDialog {
+
+    private Params mParams;
+
+    private CommonDialog(Params params) {
+        this.mParams = params;
+    }
+
+    public void setTitleText(String title) {
+        mParams.titleText = title;
+    }
+
+    public void setMessageText(String message) {
+        mParams.messageText = message;
+    }
+
+    public void show() {
+        //set view...
+    }
+
+    public static class Builder {
+
+        protected Params mParams = new Params();
+
+        public Builder setTitleText(String title) {
+            mParams.titleText = title;
+            return this;
+        }
+
+        public Builder setMessageText(String message) {
+            mParams.messageText = message;
+            return this;
+        }
+
+        public Builder setConfirmText(String confirm) {
+            mParams.confirmText = confirm;
+            return this;
+        }
+
+        public Builder setCancelText(String cancel) {
+            mParams.cancelText = cancel;
+            return this;
+        }
+
+        public CommonDialog create() {
+          	//create normal dialog logic
+            return new CommonDialog(mParams);
+        }
+
+        public CommonDialog createOnlyConfirm() {
+          	//create only have confirm btn dialog logic
+            mParams.cancelText = null;
+            return new CommonDialog(mParams);
+        }
+
+    }
+
+    private static class Params {
+
+      	/*public to anyone*/
+        private String titleText;
+        private String messageText;
+
+      	/*private field , runtime not change*/
+        private String confirmText;
+        private String cancelText;
+
+    }
+
+}
+</code></pre>
+<p><strong>建造者模式使用示例</strong></p>
+<pre><code class="language-java">public void main() {
+    CommonDialog.Builder builder = new CommonDialog.Builder();
+    builder.setMessageText(&quot;will you marry me&quot;);
+    builder.setConfirmText(&quot;yes&quot;);
+    builder.setCancelText(&quot;no&quot;);
+    CommonDialog normalDialog = builder.create();//创建普通对话框
+    normalDialog.show();
+
+    builder.setMessageText(&quot;are you free now?&quot;);
+    builder.setConfirmText(&quot;yes&quot;);
+    CommonDialog onlyConfirmDialog = builder.createOnlyConfirm();//创建只有确认按钮的对话框
+    onlyConfirmDialog.show();
+    
+    onlyConfirmDialog.setMessageText(&quot;Let's go to the movies?&quot;);
+    onlyConfirmDialog.show();
+}
+</code></pre>
+<p>看使用示例就能明白，当在创建<code>Dialog</code>过程中，可以随意的更改任何属性；一旦创建了<code>Dialog</code>实例对象，可修改的属性就不多了。基于此，笔者总结一下<code>Builder</code>模式两大特点：限制、封装</p>
+<h3 id="3-源码锚点-3">3、源码锚点</h3>
+<p>建造者模式在Android源码中的实现：<code>AlertDialog</code></p>
+<h3 id="4-小结-4">4、小结</h3>
+<p><code>建造者模式</code>的主要优点在于客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象，每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者，符合“<code>开闭原则</code>”，还可以更加精细地控制产品的创建过程</p>
+<p>当然，<code>建造者模式</code>也是有缺点的，其主要缺点在于由于<code>建造者模式</code>所创建的产品一般具有较多的共同点，其组成部分相似，因此其使用范围受到一定的限制，相对应的代码量也会增加不少；如果产品的内部变化复杂，可能会导致需要定义很多具体<code>建造者</code>类来实现这种变化，导致系统变得很庞大。</p>
+<p><code>建造者模式</code>适用情况包括：</p>
+<ol>
+<li>需要生成的产品对象有复杂的内部结构，这些产品对象通常包含多个成员属性；</li>
+<li>需要生成的产品对象的属性相互依赖，需要指定其生成顺序；</li>
+<li>对象的创建过程独立于创建该对象的类；</li>
+<li>隔离复杂对象的创建和使用，并使得相同的创建过程可以创建不同类型的产品。</li>
+</ol>
+<p>此小节涉及到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/builder">这里</a></p>
+<h2 id="六-总结">六、总结</h2>
+<p>本文介绍了常见的几种<code>创建型设计模式</code>，简单总结一下：</p>
+<ol>
+<li><code>单例模式</code>：保证一个类仅有一个实例，常见实现方式有
+<ol>
+<li>饿汉式：若被提前加载会占用内存</li>
+<li>懒汉式-静态内部类</li>
+<li>懒汉式-双重校验锁DCL</li>
+<li>枚举类单例：由虚拟机初始化，防止破坏唯一性</li>
+</ol>
+</li>
+<li><code>工厂方法模式</code>，通过工厂子类来确定究竟应该实例化哪一个具体产品类
+<ol>
+<li>简单工厂：工厂方法的简化模式</li>
+</ol>
+</li>
+<li><code>抽象工厂模式</code>：提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类</li>
+<li><code>建造者模式</code>：将复杂对象的构造与它的表示分开，这样可以在相同的构造过程中创建不同的表示形式。</li>
+</ol>
+<p><em>由于笔者水平有限，文中难免会出现遗漏甚至错误的地方，若您发现任何问题或者有任何建议请在<a href="https://github.com/yibaoshan/Blackboard/issues">这里</a>提交Issue，感谢</em></p>
+<p>全文完</p>
+<h2 id="七-参考资料">七、参考资料</h2>
+<ul>
+<li><a href="https://design-patterns.readthedocs.io/zh_CN/latest/index.html">图说设计模式</a></li>
+<li><a href="https://item.jd.com/11793928.html">《Android 源码设计模式解析与实战》-何红辉 / 关爱民</a></li>
+<li><a href="https://www.zhihu.com/question/27125796">知乎：简单工厂模式、工厂方法模式和抽象工厂模式有何区别</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/hello/" class="post-title gt-a-link">
+                    Hello
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

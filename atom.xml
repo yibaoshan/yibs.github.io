@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://yibaoshan.github.io/</id>
+    <title>易保山</title>
+    <updated>2024-06-29T00:41:51.309Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://yibaoshan.github.io/"/>
+    <link rel="self" href="https://yibaoshan.github.io/atom.xml"/>
+    <logo>https://yibaoshan.github.io/images/avatar.png</logo>
+    <icon>https://yibaoshan.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2024, 易保山</rights>
+    <entry>
+        <title type="html"><![CDATA[简单聊聊指令重排]]></title>
+        <id>https://yibaoshan.github.io/post/concurrency-program-order/</id>
+        <link href="https://yibaoshan.github.io/post/concurrency-program-order/">
+        </link>
+        <updated>2022-12-12T14:04:58.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Android图形系统（五）番外篇：触摸事件详解]]></title>
+        <id>https://yibaoshan.github.io/post/android-graphics-input/</id>
+        <link href="https://yibaoshan.github.io/post/android-graphics-input/">
+        </link>
+        <updated>2022-11-28T18:41:12.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[读书笔记：十天学会51单片机]]></title>
+        <id>https://yibaoshan.github.io/post/book-notes-computers-microcomputer-8051/</id>
+        <link href="https://yibaoshan.github.io/post/book-notes-computers-microcomputer-8051/">
+        </link>
+        <updated>2022-11-15T15:59:59.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[读书笔记：穿越计算机的迷雾（下）]]></title>
+        <id>https://yibaoshan.github.io/post/book-notes-computers-lizhong-2/</id>
+        <link href="https://yibaoshan.github.io/post/book-notes-computers-lizhong-2/">
+        </link>
+        <updated>2022-11-09T16:11:34.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[读书笔记：穿越计算机的迷雾（上）]]></title>
+        <id>https://yibaoshan.github.io/post/book-notes-computers-lizhong-1/</id>
+        <link href="https://yibaoshan.github.io/post/book-notes-computers-lizhong-1/">
+        </link>
+        <updated>2022-11-08T13:18:04.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[为什么会发生 Fragment not attached to Activity 异常？]]></title>
+        <id>https://yibaoshan.github.io/post/fragment-not-attached-to-activity-exception/</id>
+        <link href="https://yibaoshan.github.io/post/fragment-not-attached-to-activity-exception/">
+        </link>
+        <updated>2022-11-04T06:03:00.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Android组件系列：再谈Handler机制（Native篇）]]></title>
+        <id>https://yibaoshan.github.io/post/android-components-handler-native/</id>
+        <link href="https://yibaoshan.github.io/post/android-components-handler-native/">
+        </link>
+        <updated>2022-09-22T17:46:07.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Android图形系统（四）应用篇：自定义View/ViewGroup详解]]></title>
+        <id>https://yibaoshan.github.io/post/android-graphics-application/</id>
+        <link href="https://yibaoshan.github.io/post/android-graphics-application/">
+        </link>
+        <updated>2022-09-06T19:20:18.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Android图形系统（三）系统篇：渲染/合成的底层原理浅析]]></title>
+        <id>https://yibaoshan.github.io/post/android-graphics-system/</id>
+        <link href="https://yibaoshan.github.io/post/android-graphics-system/">
+        </link>
+        <updated>2022-08-15T15:44:49.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Android图形系统（二）驱动篇：垂直同步到底要不要开？]]></title>
+        <id>https://yibaoshan.github.io/post/android-graphics-driver/</id>
+        <link href="https://yibaoshan.github.io/post/android-graphics-driver/">
+        </link>
+        <updated>2022-06-01T14:11:52.000Z</updated>
+    </entry>
+</feed>

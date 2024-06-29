@@ -1,0 +1,866 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Android组件系列：Handler机制详解 | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Android组件系列：Handler机制详解
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-04-09 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/handler/" class="post-tags">
+                            # Handler
+                        </a>
+                    
+                        <a href="https://yibaoshan.github.io/tag/Android-Components/" class="post-tags">
+                            # Android组件
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7084544971713282056">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<h2 id="overview">Overview</h2>
+<p>每个Android开发者都或多或少的了解过<strong>Android Handler机制</strong>，为了不浪费大家时间，在文章开始之前，我认为有必要说明一下本文的目标受众</p>
+<p>适合人群：</p>
+<blockquote>
+<p>1、Android新手开发，对Handler机制还不是很熟悉，想要了解Handler内部是如何运行的</p>
+<p>2、其他客户端开发，比如iOS、Windows开发等，想要了解在Android系统中是如何在非UI线程更新界面的</p>
+</blockquote>
+<p>不适合人群：</p>
+<blockquote>
+<p>1、中高级工程师，对Handler机制了解的很深入了，这篇文章纯属浪费时间</p>
+<p>2、觉得源码过于枯燥，想要找一篇文章对照着看，本文可能不是很合适，因为文章中并不会涉及太多的源码</p>
+</blockquote>
+<figure data-type="image" tabindex="1"><img src="https://yibaoshan.github.io//post-images/1649518241032.jpg" alt="" loading="lazy"></figure>
+<h2 id="一-前言">一、前言</h2>
+<p>Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及了解APP组件是如何运行的等问题有着非常大的帮助</p>
+<p>市面上已经有许多讲解Handler机制的文章，各种角度的都有，其中不乏有不少深度好文；本文不讲解源码(主要是讲不过其他文章)，从Android Handler机制的设计思想开始讲起，由浅入深，带你一步步走进Handler内部的实现原理</p>
+<p>以下，enjoy：</p>
+<h2 id="二-handler设计背景">二、Handler设计背景</h2>
+<p>在Android开发者官网对<code>View</code>的介绍有这样一句话：</p>
+<figure data-type="image" tabindex="2"><img src="https://yibaoshan.github.io//post-images/1649518269228.jpg" alt="" loading="lazy"></figure>
+<p><em>图片来源：<a href="https://developer.android.com/reference/android/view/View">Android Developer</a></em></p>
+<p><strong>整个视图树是单线程的， 在任何视图上调用任何方法时，必须始终在 UI 线程上。如果在其他线程上工作并希望从该线程更新视图的状态，则应该使用Handler</strong></p>
+<p>不只是Android，在iOS开发者官网对<code>UIKit</code>介绍中同样有类似提示：</p>
+<figure data-type="image" tabindex="3"><img src="https://yibaoshan.github.io//post-images/1649518302551.jpg" alt="" loading="lazy"></figure>
+<p><em>图片来源：<a href="https://developer.apple.com/documentation/uikit">Apple iOS Developer</a></em></p>
+<p><strong>除非另有说明，否则只能从应用程序的主线程或主调度队列中使用 UIKit 类。 此限制特别适用于从 UIResponder 派生的类或涉及以任何方式操作应用程序用户界面的类。</strong></p>
+<p>奇了怪了，Android和iOS作为一个有<strong>图形用户界面(Graphical User InterfaceI)<strong>的操作系统，为什么都要求在</strong>主线程</strong>(<strong>UI线程</strong>)操作页面？</p>
+<h3 id="1-gui为什么要设计成单线程">1、GUI为什么要设计成单线程？</h3>
+<p>关于<strong>GUI为什么要设计成单线程</strong>这个问题，前Sun的副总裁Graham Hamilton在设计<strong>Java Swing</strong>时，曾经写过一篇文章专门聊过：<a href="https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream">Multithreaded toolkits: A failed dream?</a></p>
+<blockquote>
+<p>最近有人提出一个问题，“我们是否应该让 Swing 库真正实现多线程？” 我个人觉得不应该，下面阐述理由。</p>
+<p><strong>无法实现的梦想（Failed Dream）</strong></p>
+<p>借用 Vernor Vinge 的术语，在计算机科学中，某些想法是“无法实现的梦想”。这种想法初步看来很好，人们隔一段时间就会重新冒出这种想法，并为此花费很多时间。通常在研究阶段，事情进展顺利，有一些让人感兴趣的成果，差不多可以应用到生产规模上了。只是总有些问题解决不了，解决了这边的问题，那边又有问题冒出来。</p>
+<p>在我看来，多线程的 GUI 工具包，就是这种无法实现的梦想。在多线程环境中，任意一个线程都可以去更新按钮(Button)、文本字段(Text Field)等 GUI 状态，这似乎是理所当然、直截了当的做法。任意线程去更新 GUI 状态，无非是加一些锁，又有什么难的呢？实现过程中可能会有一些错误，但我们可以修复这些错误，对吧？可惜事实证明没有这样简单。</p>
+<p>多线程的 GUI 有种不可思议的趋势，会不断发生死锁或者竞争条件。我第一次知道这趋势，是在 80 年代初期，从 Xerox PARC 的 Cedar GUI 库中工作的那些人中听来的。这批人都十分聪明，也真正了解多线程编程。他们的 GUI 代码时不时就有死锁问题，这件事本身就很有趣。单独这事不能说明什么，或者只是特殊情况。</p>
+<p>只是这些年来不断重复这一模式。人们最开始采用多线程，慢慢地，他们转换到了事件队列模型。“最好让事件线程做 GUI 的工作。&quot;</p>
+<p>...略</p>
+<p><strong>为什么这么难</strong></p>
+<p>我们使用抽象来编写代码，很自然地会在每个抽象层中单独上锁。于是很不幸地，我们就遇到经典的锁定顺序噩梦：有两种不同类型的活动，按照相反的顺序，试图获取锁。因而死锁不可避免。</p>
+<p>...略</p>
+<p>来自：<a href="https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream">Multithreaded toolkits: A failed dream?</a>，原网页已经404，查看原文可以点击下面两个链接</p>
+<ul>
+<li><a href="https://blog.csdn.net/coderAndy/article/details/51761691">CSDN原文备份</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/44639688">知乎翻译：多线程 GUI 工具包：无法实现的梦想？</a></li>
+</ul>
+</blockquote>
+<p><strong>简单来说，多线程操作一个UI，很容易导致，或者极其容易导致反向加锁和死锁问题</strong></p>
+<p>我们通过用户级的代码去改变界面，如<code>TextView.setText</code>走的是个自顶向下的流程：</p>
+<figure data-type="image" tabindex="4"><img src="https://yibaoshan.github.io//post-images/1649518340263.jpg" alt="" loading="lazy"></figure>
+<p><em>图片来源：<a href="https://blog.csdn.net/liuqiaoyu080512/article/details/12895005">GUI为什么不设计为多线程</a></em></p>
+<p>而系统底层发起的如<strong>键盘事件</strong>、<strong>点击事件</strong>走的是个自底向上的流程：</p>
+<figure data-type="image" tabindex="5"><img src="https://yibaoshan.github.io//post-images/1649518359170.jpg" alt="" loading="lazy"></figure>
+<p><em>图片来源：<a href="https://blog.csdn.net/liuqiaoyu080512/article/details/12895005">GUI为什么不设计为多线程</a></em></p>
+<p>这样就麻烦了，<strong>因为为了避免死锁，每个流程都要走一样的加锁顺序，而GUI中的这两个流程却是完全相反的，如果每一层都有一个锁的话加锁就是个难以完成的任务了，而如果每一层都共用一个锁的话，那就跟单线程没区别了。</strong></p>
+<p>综上，目前主流的带有<strong>用户界面(GUI)<strong>的操作系统，除了</strong>DOS</strong>外，几乎都是使用UI单线程模型的方案，即<strong>消息队列机制</strong></p>
+<h3 id="2-什么是消息队列机制">2、什么是消息队列机制？</h3>
+<p>提到<strong>消息队列</strong>，自然而然就会想到<strong>生产者-消费者模式</strong>，在<a href="https://juejin.cn/post/7072263857015619621#heading-16">《从Android源码角度谈设计模式（三）：行为型模式》</a>一文中我们已经介绍过了生产者-消费者模式，还没有看过的同学可以先看完再回来，这里来简单回顾一下：</p>
+<p>在一个生产者-消费者模式中，通常会有三个角色</p>
+<ul>
+<li>
+<p><strong>消息队列(single)</strong></p>
+<blockquote>
+<p>负责保存消息，提供存取消息的功能</p>
+</blockquote>
+</li>
+<li>
+<p><strong>生产者(multiple)</strong></p>
+<blockquote>
+<p>负责生产消息，塞到共享的消息队列中</p>
+</blockquote>
+</li>
+<li>
+<p><strong>消费者(multiple)</strong></p>
+<blockquote>
+<p>负责从共享消息队列中取出消息，执行消息对应的任务</p>
+</blockquote>
+</li>
+</ul>
+<figure data-type="image" tabindex="6"><img src="https://yibaoshan.github.io//post-images/1649518390630.jpg" alt="" loading="lazy"></figure>
+<p>这三个角色中，因为生产者和消费者要从同一个<strong>消息队列</strong>取放消息，所以消息队列的数量要求是<strong>唯一</strong>的，生产者和消费者的数量可以任意</p>
+<p>我们回到Android系统，GUI框架多数使用单线程设计，那么就要求所有的<strong>UI操作</strong>都只能发生在一个线程当中，即：</p>
+<p><strong>消费者线程只有一个，且消费者线程就是UI线程</strong></p>
+<p>到了这里，关于消息队列机制应该有个清晰的概念了，我们来总结一下：</p>
+<p><strong>Android、Swing、iOS等的GUI库都使用消息队列机制来处理绘制界面、事件响应等消息</strong></p>
+<p><strong>在这种设计中，每个待处理的任务都被封装成一个消息添加到消息队列里</strong></p>
+<p><strong>消息队列是线程安全的（消息队列自己通过加锁等机制保证消息不会在多线程竞争中丢失），任何线程都可以添加消息到这个队列中</strong></p>
+<p><strong>但是，只有主线程（UI线程）从中取出消息，并执行消息的响应函数，这就保证了只有主线程才去执行这些操作</strong></p>
+<p>小节完</p>
+<h3 id="3-android中的消息队列handler">3、Android中的消息队列：Handler</h3>
+<p>前两小节我们介绍了Android系统中为什么只能在<strong>UI线程</strong>更新界面的原因，最终发现不只是Android系统，其他大部分有<strong>GUI框架</strong>的操作系统都是采用单线程消息队列机制的设计。既然都是单线程设计，那么想要在子线程更新UI就必须要通知主线程</p>
+<p><strong>在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具</strong></p>
+<figure data-type="image" tabindex="7"><img src="https://yibaoshan.github.io//post-images/1649518414334.jpg" alt="" loading="lazy"></figure>
+<p>从图中可以看到，Handler相当于消息的生产者，每个Handler都持有共享MessageQueue的引用</p>
+<p><strong>当调用<code>Handler.sendMessage()</code>方法发送消息时，Handler就会把消息保存到共享消息队列中</strong></p>
+<p>和普通消息队列机制不同的时，Android中的MessageQueue大小没有<strong>阈值上限</strong>，所以理论上可以一直发消息到队列，把内存撑爆~</p>
+<p><strong>在Handler机制中，消息的消费者是Looper，严谨点是调用<code>Looper.loop()</code>所在的线程，因为Looper本质上只是封装对消息队列的操作，<code>Looper.loop()</code>方法负责取出共享消息队列里面的消息，然后交由Handler去执行</strong></p>
+<p>这里又有一点和普通消息队列机制不同，通常消息的消费者会去执行消息的<strong>响应函数</strong>；但在Android Handler机制中，消费者本身并不执行消息任务，而是将消息取出后，再重新分发给消息的<strong>发送者</strong>执行，也就是Handler，所以我们平时才说</p>
+<p><strong>在整个Handler的机制中，Handler首先是消息的生产者，其次才是消息的执行者</strong></p>
+<p>除了发消息外，Android还为Handler增加了一些其他功能，比如子线程提交同步任务、异步消息和同步屏障等等</p>
+<p>本小节的目的是了解Handler的设计背景，关于Handler其他功能这里就不展开介绍，在Handler系列的下一篇文章中会详细剖析Handler内部源码</p>
+<p>小结完</p>
+<h2 id="三-如何自己实现一套handler机制">三、如何自己实现一套Handler机制？</h2>
+<p>在上一章节中，我们介绍了Handler的设计背景，本章节将会尝试自己实现一套简单的Handler机制</p>
+<p>我们假设读者已经有一定的开发经验，并且使用过Handler，那么接下来就是枯燥的代码时间</p>
+<h3 id="1-handler成员介绍">1、Handler成员介绍</h3>
+<p>在开撸之前，按照惯例，我们先来介绍一下组成Handler机制的几位成员，以及它们常用的方法</p>
+<h4 id="11-handler类"><strong>1.1 Handler类</strong></h4>
+<p>Handler类是应用程序开发的入口，在消息队列机制中，扮演着<strong>生产者</strong>的角色，同时还肩负着<strong>消息执行者</strong>的重担，常用的方法有：</p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sendMessage()系列</td>
+<td>发送普通消息、延迟消息，最终调用<code>queue.enqueueMessage()</code>方法将消息存入消息队列</td>
+</tr>
+<tr>
+<td>post()系列</td>
+<td>提交普通/延迟Runnable，随后封装成Message，调用<code>sendMessage()</code>存入消息队列</td>
+</tr>
+<tr>
+<td>dispatchMessage(Message msg)</td>
+<td>分发消息，优先执行<code>msg.callback</code>(也就是runnable)，其次<code>mCallback.handleMessage()</code>，最后<code>handleMessage()</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="12-looper类"><strong>1.2 Looper类</strong></h4>
+<p>Looper在消息队列机制中扮演<strong>消费者</strong>的角色，内部持有共享的消息队列，其本质是<strong>封装</strong>对消息队列的操作，常用的方法只有两个：</p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prepare()</td>
+<td>创建消息队列</td>
+</tr>
+<tr>
+<td>loop()</td>
+<td>遍历消息队列，不停地从消息队列中取消息，消息队列为空则等待</td>
+</tr>
+</tbody>
+</table>
+<h4 id="13-messagequeue类"><strong>1.3 MessageQueue类</strong></h4>
+<p>实际的<strong>共享消息队列</strong>，提供保存和取出消息的功能，底层由链表实现，常用方法就一个：</p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>next()</td>
+<td>获取消息，三种情况 1. 有消息，且消息到期可以执行，返回消息 2. 有消息，消息未到期，进入限时等待状态 3. 没有消息，进入无限期等待状态，直到被唤醒</td>
+</tr>
+</tbody>
+</table>
+<h4 id="14-message类"><strong>1.4 Message类</strong></h4>
+<p>消息的承载类，使用享元模式设计，根据API不同缓冲池大小也不同，API 4时缓冲池大小为10，常用方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>obtain()系列</td>
+<td>获取一个消息实例</td>
+</tr>
+<tr>
+<td>recycle()</td>
+<td>回收消息实例</td>
+</tr>
+</tbody>
+</table>
+<h4 id="15-小结"><strong>1.5 小结</strong></h4>
+<p>至此，Handler的几个主要成员类都介绍完了，有同学可能已经发现了，成员介绍中没有包含<strong>ThreadLocal</strong>类？</p>
+<p>我个人认为ThreadLocal是属于<strong>Java并发</strong>模块的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的<strong>唯一性</strong>，就算不适用ThreadLocal对整个Handler机制也没啥影响~</p>
+<p>小节完</p>
+<h3 id="2-基于objectwaitnotifiy实现handler机制">2、基于Object.wait()/notifiy()实现Handler机制</h3>
+<p><code>3.1</code>小节介绍了Handler的几个成员类，以及成员类中常用的方法，本章节将会用<strong>Java同步机制</strong>来实现Handler</p>
+<p>话不多说，直接开撸</p>
+<h4 id="21-手写消息队列机制"><strong>2.1 手写消息队列机制</strong></h4>
+<p>前面的章节我们已经了解过<strong>消息队列机制</strong>的概念，这里直接来看代码</p>
+<p><strong>首先我们来创建一个生产者，生产者线程中，我们写了个死循环一直发送消息，来模拟用户操作；每次发完消息后，唤醒可能在等待状态的消费者线程，然后将自己个儿置入限时等待状态</strong></p>
+<figure data-type="image" tabindex="8"><img src="https://yibaoshan.github.io//post-images/1649518453936.png" alt="" loading="lazy"></figure>
+<p><strong>然后再创建一个消费者，在消费者线程中，同样是死循环，不停的轮询消息队列，有消息就处理，没消息就将自己置入无限期等待的状态，直到被唤醒</strong></p>
+<figure data-type="image" tabindex="9"><img src="https://yibaoshan.github.io//post-images/1649518471121.png" alt="" loading="lazy"></figure>
+<p><strong>接着就是共享的消息队列了，偷个懒，消息队列就使用的是Java集合包中的Queue好了，来看最终的测试代码：</strong></p>
+<figure data-type="image" tabindex="10"><img src="https://yibaoshan.github.io//post-images/1649518485969.png" alt="" loading="lazy"></figure>
+<p><strong>打印结果：</strong></p>
+<figure data-type="image" tabindex="11"><img src="https://yibaoshan.github.io//post-images/1649518498574.png" alt="" loading="lazy"></figure>
+<p>在测试代码中，两个boss张三和李四时不时发指令给下属，两个下属小明和小红在不停的轮询等待上司的指令，一个简单的消息队列机制就完成了；在不考虑延迟消息的情况下，加上测试代码，整个消息队列机制不到100行代码就搞定了，还是比较简单的</p>
+<h4 id="22-手写handler机制"><strong>2.2 手写Handler机制</strong></h4>
+<p><code>2.1</code>小节我们已经用<code>Object.wait()</code>/<code>notifiy()</code>实现了消息队列，实现Handler机制只需要在上面的消息队列的基础上稍微改动一下就能完成：</p>
+<p><strong>同学们注意，我要开始变形了！！！</strong></p>
+<p><strong>第一步，我们把消费者线程中的逻辑挪到Looper当中，把轮询的任务放到loop()方法中；若取到了消息，模拟Android Handler机制，将消息分发给消息所属的生产者者(Handler)去执行</strong></p>
+<figure data-type="image" tabindex="12"><img src="https://yibaoshan.github.io//post-images/1649518516543.png" alt="" loading="lazy"></figure>
+<p><strong>接着，将消费者线程中获取消息的逻辑抽离出来，放到MessageQueue的next()方法中</strong></p>
+<p><strong>和上面的消费者线程比较，这里加了一条逻辑：当发送的消息时延迟消息时，判断消息是否到期，到期返回给Looper去分发(这里偷懒使用了Java集合包中的优先级队列PriorityQueue，来保证时间最小的消息排在最前面)</strong></p>
+<figure data-type="image" tabindex="13"><img src="https://yibaoshan.github.io//post-images/1649518535772.png" alt="" loading="lazy"></figure>
+<p><strong>然后，把生产者线程中直接将消息存入消息队列的操作的逻辑也抽出来，放到Handler的sendMessage()方法中</strong></p>
+<figure data-type="image" tabindex="14"><img src="https://yibaoshan.github.io//post-images/1649518552257.png" alt="" loading="lazy"></figure>
+<p><strong>再然后，来看一眼Message类的设计，加了个Handle类型的成员变量target</strong></p>
+<figure data-type="image" tabindex="15"><img src="https://yibaoshan.github.io//post-images/1649518570181.png" alt="" loading="lazy"></figure>
+<p><strong>好！大功告成，一起看看测试代码：</strong></p>
+<p><strong>在main()方法中创建了<code>handler1</code>和<code>handler2</code>，模拟用户在主线程申请Handler的场景；随后开启俩子线程，让子线程代码使用刚刚创建的Handler发送消息，这样，子线程使用该Handler发送的消息就会添加到主线程的消息队列，等待主线程的Looper去处理</strong></p>
+<figure data-type="image" tabindex="16"><img src="https://yibaoshan.github.io//post-images/1649518584263.png" alt="" loading="lazy"></figure>
+<p><strong>打印结果：</strong></p>
+<figure data-type="image" tabindex="17"><img src="https://yibaoshan.github.io//post-images/1649518591721.png" alt="" loading="lazy"></figure>
+<p>看，如果是普通任务，<code>loop()</code>方法里面就直接分发掉了，延迟任务因为使用的是<code>PriorityQueue</code>的缘故，会排到最后才放出来</p>
+<p><strong>到这里一个简单的Handler机制就完成了，没看懂的同学请在评论区扣1</strong></p>
+<p>关于此小节设计到的代码在<a href="https://github.com/yibaoshan/Blackboard/tree/master/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/object">这里</a></p>
+<p><em>ps：把代码转图片是因为源码太长了我知道你们也懒得看~</em></p>
+<h4 id="23-小结">2.3 小结</h4>
+<p>前两小节分别介绍了如何手写<strong>消息队列机制</strong>和手写一个简单的<strong>Handler机制</strong>，我将上面的代码调用流程梳理了一下，总结出一张简版的流程图：</p>
+<figure data-type="image" tabindex="18"><img src="https://yibaoshan.github.io//post-images/1649518695336.jpg" alt="" loading="lazy"></figure>
+<p>图中的每个成员类都只写了两个关键方法，Message类只是消息载体，所以就没放它，我觉得介绍Handler大致流程差不多这几个方法够了，觉得流程不够详细的同学可以下载源文件自行添加，流程图源文件已上传到GitHub</p>
+<p>小节完</p>
+<h2 id="四-handler机制详解">四、Handler机制详解</h2>
+<p>此小节设计之初的想法是要详细的剖析Handler机的<strong>内部源码</strong>，在写完了二、三章节后回头看才发现</p>
+<p>除了同步屏障与异步消息、IdleHandler、Callback等没有讲以外，整个Handler机制好像已经讲的差不多了-.-</p>
+<p>既然没太多可讲的，那本节索性换个目标，来聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方</p>
+<h3 id="1-除了提交消息到队列handler还提供了哪些功能">1、除了提交消息到队列，Handler还提供了哪些功能？</h3>
+<h4 id="11-idlehandler"><strong>1.1 IdleHandler</strong></h4>
+<p>IdleHandler是在Handler机制诞生之初就实现的机制，其存在的意义在于，提交一个不重要的任务单独存放在MessageQueu中的<code>mIdleHandlers</code>变量中，当消息队列空闲时会执行此任务</p>
+<pre><code class="language-java">    /**
+     * Callback interface for discovering when a thread is going to block
+     * waiting for more messages.
+     */
+    public static interface IdleHandler {
+        /**
+         * Called when the message queue has run out of messages and will now
+         * wait for more.  Return true to keep your idle handler active, false
+         * to have it removed.  This may be called if there are still messages
+         * pending in the queue, but they are all scheduled to be dispatched
+         * after the current time.
+         */
+        boolean queueIdle();
+    }
+</code></pre>
+<p><strong>IdleHandler要求返回bool类型的值，返回false表示执行完该任务后会把它从集合中删除，返回true表示该任务可以重复执行</strong></p>
+<p>IdleHandler的处理逻辑在<code>MessageQueue.next()</code>方法中，我们来看一下Android 1.6版本中的处理逻辑：</p>
+<pre><code class="language-java">// There was no message so we are going to wait...  but first,
+// if there are any idle handlers let them know.
+boolean didIdle = false;
+if (idlers != null) {
+    for (Object idler : idlers) {
+        boolean keep = false;
+        try {
+            didIdle = true;
+            keep = ((IdleHandler)idler).queueIdle();
+        } catch (Throwable t) {
+        }
+        if (!keep) {//处理结果为false将其从集合中删除
+            synchronized (this) {
+                mIdleHandlers.remove(idler);
+            }
+        }
+    }
+}
+</code></pre>
+<p>IdleHandler使用方法大家都已经很熟悉了，关注比较多的问题是：在什么场景下使用？</p>
+<p>这里举几个三方库和官方使用IdleHandler的例子，看看能不能从他们身上得到些启发</p>
+<ul>
+<li>
+<p><strong>ActivityThread.GcIdler</strong></p>
+<blockquote>
+<p>直接看代码</p>
+<pre><code class="language-java">final class GcIdler implements MessageQueue.IdleHandler {
+        @Override
+        public final boolean queueIdle() {
+            doGcIfNeeded();
+            return false;
+        }
+ }
+void doGcIfNeeded() {
+        mGcIdlerScheduled = false;
+        final long now = SystemClock.uptimeMillis();
+        //获取上次GC的时间
+        if ((BinderInternal.getLastGcTime()+MIN_TIME_BETWEEN_GCS) &lt; now) {
+            //Slog.i(TAG, &quot;**** WE DO, WE DO WANT TO GC!&quot;);
+            BinderInternal.forceGc(&quot;bg&quot;);
+        }
+ }
+</code></pre>
+<p><code>doGcIfNeeded</code>方法理解起来很简单，就是获取上次GC的时间，判断是否需要GC操作</p>
+</blockquote>
+</li>
+<li>
+<p><strong>微信性能监控框架：Matrix</strong></p>
+<blockquote>
+<p>Matrix有好几处使用到IdleHandler的地方，比如：</p>
+<p><a href="https://github.com/Tencent/matrix/blob/400615ef9b69291741a995f5efa9285ae4d98294/matrix/matrix-android/matrix-trace-canary/src/main/java/com/tencent/matrix/trace/tracer/IdleHandlerLagTracer.java">IdleHandlerLagTracer.java</a></p>
+<p><a href="https://github.com/Tencent/matrix/blob/6491b3e8259c2b41687c444ecc33800e62885ac5/matrix/matrix-android/matrix-backtrace/src/main/java/com/tencent/matrix/backtrace/WarmUpScheduler.java">WarmUpScheduler.java</a></p>
+<p><a href="https://github.com/Tencent/matrix/blob/7092f247f5dcedb05d0abd72117e5fdfde91335e/matrix/matrix-android/matrix-resource-canary/matrix-resource-canary-android/src/main/java/com/tencent/matrix/resource/dumper/AndroidHeapDumper.java">AndroidHeapDumper.java</a></p>
+<p><a href="https://github.com/Tencent/matrix/blob/6491b3e8259c2b41687c444ecc33800e62885ac5/matrix/matrix-android/matrix-trace-canary/src/main/java/com/tencent/matrix/trace/core/LooperMonitor.java">LooperMonitor.java</a></p>
+<p>以LooperMoitor举例来说，这是监听Looper消息分发的类，微信这里利用IdlerHandler做了一个检查的工作</p>
+<pre><code class="language-java">    @Override
+    public boolean queueIdle() {
+        if (SystemClock.uptimeMillis() - lastCheckPrinterTime &gt;= CHECK_TIME) {
+            resetPrinter();
+            lastCheckPrinterTime = SystemClock.uptimeMillis();
+        }
+        return true;
+    }
+</code></pre>
+<p>我们看到在<code>queueIdle</code>方法中返回了true，说明这个IdleHandler会被重复调用，每次调用queueIdle()方法时，会去调用<code>resetPrinter</code>方法来检查Looper中的<code>printer</code>对象是不是微信自定义的<code>LooperPrinter</code></p>
+</blockquote>
+</li>
+<li>
+<p><strong>内存泄漏检测框架：LeakCanary</strong></p>
+<blockquote>
+<p>LeakCanary在<a href="https://github.com/square/leakcanary/blob/2227781e104410d181681fa0abb48ff0f1436236/plumber-android-core/src/main/java/leakcanary/internal/ReferenceCleaner.kt">ReferenceCleaner</a>中用到了IdleHandler，源码看起来是在<code>onViewDetachedFromWindow()</code>函数中注册了IdleaHandler，注册这个IdleHandler的目的是为了清除Android ims的bug，感兴趣的同学可以自己点进去看</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="12-异步消息与同步屏障"><strong>1.2 异步消息与同步屏障</strong></h4>
+<p>Android在API 16(4.1.1)增加了对异步消息和同步屏障消息的支持</p>
+<p>所谓的同步屏障机制就是插入一个<strong>同步屏障消息</strong>到Looper的队列头部，准确的说是拆入一个<strong>当前时间</strong>的消息到队列，如果队列中有消息到期了但是还没执行，那么该<strong>同步屏障</strong>的消息会排在它后面；当Looper调用<code>next()</code>获取消息时候，发现队列头部是一个同步屏障信息，就会跳过所有同步消息，寻找所有的<strong>异步消息</strong>执行，所以异步消息机制实质上是一个对消息队列的<strong>优先级</strong>重新排列的机制</p>
+<p><em>ps：关于异步消息与同步屏障在Handler、MessageQueue、Looper中处理逻辑这里没讲，全部加进来太长了，感兴趣的同学可以去网上找其他文章</em></p>
+<h4 id="13-handler-callback机制"><strong>1.3 Handler Callback机制</strong></h4>
+<p>简单来说，就是Handler在分发消息时，提供了消息<strong>分发优先级</strong>的选项给使用者，我们来看一下消息的分发逻辑：</p>
+<pre><code class="language-java">/**
+ * Handle system messages here.
+ */
+public void dispatchMessage(Message msg) {
+    if (msg.callback != null) {
+        handleCallback(msg);
+    } else {
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
+            }
+        }
+        handleMessage(msg);
+    }
+}
+</code></pre>
+<p>优先执行<code>msg.callback</code>(也就是runnable)，其次<code>mCallback.handleMessage()</code>，若<code>callback</code>返回false，最后执行<code>handleMessage()</code>方法</p>
+<h3 id="2-使用handler的注意事项">2、使用Handler的注意事项</h3>
+<h4 id="21-内存泄漏"><strong>2.1 内存泄漏</strong></h4>
+<p>Handler引发的内存泄漏是老生常谈的话题，追根溯源的话其实和Handler本身没关系，其本质是<strong>生命周期长</strong>的组件引用<strong>生命周期短</strong>的组件，导致声明周期短的组件明明已经结束了，实例对象却不能被回收</p>
+<p>在<strong>Activity</strong>中直接创建Handler，因为是内部类的关系，该Handler会持有Activity的引用，若使用该Handler发送<strong>延时消息</strong>后销毁Activity会发现，在延时消息未执行前，Activity包括其<strong>引用的对象</strong>都不会被释放的</p>
+<p>解决方案也比较简单，声明一个<strong>静态内部类</strong>即可，代码如下：</p>
+<pre><code class="language-java">public static class InternalHandler extends Handler {
+    
+    private WeakReference&lt;Context&gt; contextReference;
+
+    public InternalHandler(WeakReference&lt;Context&gt; contextReference) {
+        this.contextReference = contextReference;
+    }
+}
+</code></pre>
+<h4 id="22-享元模式的坑"><strong>2.2 享元模式的坑</strong></h4>
+<p>Handler中的<strong>Message</strong>类使用<strong>享元模式</strong>设计，在<a href="https://juejin.cn/post/7051139976095858725#heading-5">《从Android源码角度谈设计模式（二）：结构型模式》</a>一文中已经解释了享元模式本身会带来数据不一致的问题</p>
+<p>简单来说，当你将一个<strong>享元对象</strong>传递给子线程，因为Java是值传递，所以当子线程使用到传递进来的<strong>享元对象</strong>时，这个对象可能正在<strong>回收池</strong>中，也可能已经被<strong>取出</strong>供其他方法使用</p>
+<p>体现在Handler机制中则是，<code>Looper.loop()</code>执行完消息的分发后，会调用<code>msg.recycle()</code>将该消息<strong>实例对象</strong>回收，这时候就会有个问题，来看代码：</p>
+<pre><code class="language-java"> public static class InternalHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 250){
+                //新建异步线程处理逻辑
+                new Thread(() -&gt; {
+                    Thread.sleep(100*1000);//模拟耗时
+                    System.out.println(msg.obj);//模拟消息使用
+                }).start();
+            }
+        }
+    }
+</code></pre>
+<p>如上，我们在拿到msg后，新起了一个线程去处理消息</p>
+<p>来看Looper这边的逻辑，<code>loop()</code>方法里面调用完<code>msg.target.dispatchMessage()</code>方法后紧接着就会回收消息对象实例</p>
+<p>那么我们在子线程中拿到的<strong>对象引用</strong>，里面内容的实际是<strong>空的</strong>，或者是该对象引用又已经被其他线程在使用了，总之，在子线程中的<strong>消息</strong>不是原来的<strong>消息</strong>了</p>
+<h3 id="3-handler有哪些妙用">3、Handler有哪些妙用</h3>
+<h4 id="31-永不崩溃的app"><strong>3.1 永不崩溃的APP</strong></h4>
+<h5 id="1-使用方法">1. 使用方法</h5>
+<p>利用Handler机制拦截异常前两年在网上还小火了一把，笔者刚知道Handler还可以这样用的时候很开心，不会因为未捕获异常导致APP崩溃了，我的绩效有救了~</p>
+<p>当然，说<strong>永不崩溃</strong>言过其实了，它只能拦截Java层异常，native异常是没办法捕获的，接下来我们来了解一下如何实现的</p>
+<p>首先，先来看一下使用的方法，很简单，我们在<strong>Application</strong>随便找个方法加入以下代码：</p>
+<pre><code class="language-java">new Handler(Looper.getMainLooper()).post(() -&gt; {
+    while (true) {
+        try {
+            Looper.loop();
+        } catch (Exception e) {
+            //保存日志并上报..
+        }
+//      }catch (Throwable throwable){ }//想要连Error(如OOM)都一起拦截就用Throwable
+    }
+});
+</code></pre>
+<p>如上，只需短短几行代码，就可以捕获Java层所有异常，怎么做到的？</p>
+<h5 id="2-实现原理">2. 实现原理</h5>
+<p>在介绍实现原理之前，我们先来复习一下Java异常处理机制，当一个异常发生时：</p>
+<ol>
+<li><strong>虚拟机会在当前出现异常的方法中，查找异常表，是否有合适的处理者来处理</strong></li>
+<li><strong>如果当前方法异常表不为空，并且异常符合处理者的 from 和 to 节点，并且 type 也匹配，则虚拟机调用位于 target的调用者来处理</strong></li>
+<li><strong>如果上一条未找到合理的处理者，则继续查找异常表中的剩余条目</strong></li>
+<li><strong>如果当前方法的异常表无法处理，则向上查找（弹栈处理）刚刚调用该方法的调用处，并重复上面的操作</strong></li>
+<li><strong>如果所有的栈帧被弹出，仍然没有处理，则抛给当前的 Thread，Thread 则会终止</strong></li>
+<li><strong>如果当前 Thread 为最后一个非守护线程，且未处理异常，则会导致虚拟机终止运行</strong></li>
+</ol>
+<pre><code class="language-java">Exception table:
+       from    to  target type
+           0     3     6   Class java/lang/Exception
+</code></pre>
+<p>我们来做个实验，在Activity主动抛出一个异常，看一下方法调用链，重点关注有没有可以手动<code>try catch</code>的地方</p>
+<pre><code class="language-java"> java.lang.RuntimeException: 我崩溃了
+        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3639)
+        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3796)
+        at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:103)
+        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2214)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loopOnce(Looper.java:201)//point 2
+        at android.os.Looper.loop(Looper.java:288)//point 1
+        at android.app.ActivityThread.main(ActivityThread.java:7842)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+     Caused by: java.lang.RuntimeException: 我崩溃了
+</code></pre>
+<p>从下往上找，最下面几个，什么<code>ZygoteInit</code>、<code>RuntimeInit</code>这些系统的类听起来就没法操作</p>
+<p>直到看到<code>point 1</code>位置的<code>Looper.loop()</code>方法，回顾一下第三章<code>2.3</code>小节中流程图，<code>loop()</code>方法里面执行的是<strong>死循环</strong>，一直在轮询消息队列</p>
+<p>那么我们再丢一个同样执行<strong>死循环</strong>，并且调用<code>Looper.loop()</code>方法轮询消息队列的<strong>消息</strong>进去，只要保证提交的这个消息不出错，就永远不会出现上面的异常堆栈信息</p>
+<p>并且，由于我在消息中调用了<code>Looper.loop()</code>方法，相当于<code>dispatch</code>消息的代码执行在我提交的这个<strong>消息</strong>中，也就是说只要<code>try catch</code>住调用<code>loop()</code>的地方，在应用内任务<strong>Java异常</strong>我都可以捕获了</p>
+<p>好了，大概的实现原理已经解释清楚了，接下来看一下在<code>msg</code>中重复调用<code>Looper.loop()</code>方法后的方法栈<strong>调用链</strong>：</p>
+<pre><code class="language-java">//原先的方法调用链
+ZygoteInit.main()
+  -&gt; RuntimeInit.MethodAndArgsCaller.run()
+  	-&gt; ActivityThread.main()
+  		-&gt; Looper.loop()
+  			-&gt; MessageQueue.next()
+//再次调用Looper.loop()方法后，调用链变成：
+ZygoteInit.main()
+-&gt; RuntimeInit.MethodAndArgsCaller.run()
+	-&gt; Activity.main()
+		-&gt; LooperThread.loop() { //因为是同一个线程内调用，相当于在Looper.loop方法上包了一层
+  		-&gt; Looper.loop()
+				-&gt; MessageQueue.next()
+		}
+</code></pre>
+<h5 id="3-小结">3. 小结</h5>
+<p>本小节介绍了让Java代码<strong>永不崩溃</strong>的实现原理，这套方案看起来比较牛逼，但是</p>
+<p><strong>不建议在生产环境中使用！！！</strong></p>
+<p>在我刚知道这套方案时，立马就在项目中进行了测试，测试结果和介绍的效果是一样的，当时真的觉得很牛逼，于是便兴高采烈的发到生产环境</p>
+<p>发版没几天就陆续收到反馈，<strong>页面白屏</strong>没数据、<strong>点击没反应</strong>等等问题</p>
+<p>后来查看上报日志，发现出问题的页面的确存在bug，但是因为被拦截了导致了功能<strong>不能正常执行</strong>，才会导致用户操作没反应等</p>
+<p><strong>简单来说，若某个生产数据的功能无法正常使用后，接下来依赖该数据的页面都会产生一系列的问题</strong></p>
+<p><strong>这反而会让应用中产生更多的不可控因素</strong></p>
+<p>最后经过内部讨论后还是把这套方案<strong>放弃</strong>了，不能用这种蛮横的方式对待bug</p>
+<p>一刀切的方案过于野蛮，GitHub有个开源库提供了更完善的解决方案，https://github.com/android-notes/Cockroach</p>
+<p>小结完</p>
+<h4 id="32-anr监控"><strong>3.2 ANR监控</strong></h4>
+<p>详情可参考微信客户端技术团队的文章：</p>
+<ul>
+<li><a href="%E5%BE%AE%E4%BF%A1Android%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84ANR%E7%9B%91%E6%8E%A7%E6%96%B9%E6%A1%88">微信Android客户端的ANR监控方案</a></li>
+<li><a href="https://mp.weixin.qq.com/s/3dubi2GVW_rVFZZztCpsKg">微信Android客户端的卡顿监控方案</a></li>
+</ul>
+<h2 id="五-handler发展历程">五、Handler发展历程</h2>
+<p>在文章的最后，我们来认识一下Handler的<strong>发展历史</strong></p>
+<p>下面的表格记录了<strong>Handler</strong>从<strong>Android 1.6</strong> (API 3) 一直到<strong>Android 12</strong> (API 31)的演变过程：</p>
+<ul>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-1.6_r1/core/java/android/os">Android 1.6(API 4)</a></strong></p>
+<blockquote>
+<p>这也许是你能找到最老版本的Handler源码，此时Handler的完成度已经很高了，特点是：</p>
+<p><strong>1、队列空闲时等待以及唤醒方案用的是Java的Object.wait()/notfity()</strong></p>
+<blockquote>
+<p>调用MessageQueue的<code>next</code>方法获取消息，这时候检查队列有没有消息</p>
+<ul>
+<li>没有消息调用<code>this.wait()</code>无限期等待</li>
+<li>有消息但消息未到期调用<code>this.wait()</code>传入到期时间</li>
+</ul>
+<p>调用<code>MessageQueue.enqueueMessage()</code>添加消息，消息加入队列后会调用<code>this.notifity()</code>唤醒<code>next()</code>方法，这里有个bug是没有判断添加的消息要什么时候执行，<strong>延迟消息</strong>也会唤醒</p>
+</blockquote>
+<p><strong>2、MessageQueue支持IdleHandler</strong></p>
+<blockquote>
+<p>IdleHandler是MessageQueue的内部类，调用<code>addIdleHandler(handler)</code>方法将一个IdleHandler添加到<code>mIdleHandlers</code>集合中，消息队列<strong>空闲时</strong>才会执行</p>
+</blockquote>
+<p><strong>3、不支持异步消息和同步屏障消息</strong></p>
+<blockquote>
+<p>所有消息一视同仁，这也是早期Android设备体验不好的原因之一</p>
+</blockquote>
+<p><strong>4、Handler支持Callback回调</strong></p>
+<blockquote>
+<p>提到这个方法是因为它比较重要，先来看一下消息分发的先后顺序：</p>
+<p><em>优先执行msg.callback(也就是runnable)，其次mCallback.handleMessage()，最后handleMessage()</em></p>
+<p><em>其中，调用mCallback.handleMessage()方法时会要求返回bool类型的值，这个值为true就不会向下分发给Handler的handleMessage()方法，为false会继续向下分发</em></p>
+<p>知道了分发逻辑之后我们就可以hook掉ActivityThread中的H类，传入callback拦截我们想要的信息，进而做组件化或监控方面的工作</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-2.3_r1/core/java/android/os">Android 2.3(API 9)</a></strong></p>
+<blockquote>
+<p><strong>2.3</strong>比较大的变化是增加了<strong>native层</strong>的Handler消息机制</p>
+<p><strong>1、MessageQueue支持处理native层消息</strong></p>
+<blockquote>
+<p>MessageQueue通过<code>mPtr</code>变量保存NativeMessageQueue对象，从而使得MessageQueue成为Java层和Native层的枢纽，既能处理上层消息，也能处理native层消息</p>
+<p>关于native层的Handler想要了解更多的同学看这里：</p>
+<ul>
+<li>袁辉辉老师的文章：<a href="http://gityuan.com/2015/12/27/handler-message-native/">Android消息机制2-Handler(Native层)</a></li>
+<li>native的MessageQueue源码：<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-2.3_r1/core/jni/android_os_MessageQueue.cpp">android-2.3_r1/core/jni/android_os_MessageQueue</a></li>
+</ul>
+</blockquote>
+<p><strong>2、MessageQueue.next()方法中，空闲时等待方案从Object.wait()改为nativePollOnce()实现</strong></p>
+<blockquote>
+<p>由于加入native层Handler，队列空闲时不能只判断Java层的MessageQueue，MessageQueue将原先的<code>this.wait()</code>方法改成了调用native的<code>nativePollOnce()</code>方法，若大家都空闲，方法会阻塞到native的<code>epoll_wait()</code>方法中，等待唤醒</p>
+</blockquote>
+<p><strong>3、MessageQueue.enqueueMessage()方法中，唤醒方案从Object.notify()改为nativeWake()实现</strong></p>
+<blockquote>
+<p>参考上一小节，这里还有个小细节，<strong>Android 2.3</strong>之前只要调用<code>enqueueMessage()</code>方法就会调用<code>this.notify()</code>唤醒线程，哪怕加入的这个消息是个<strong>延迟消息</strong>要求一万年后才执行，在<strong>2.3</strong>的版本中的<code>enqueueMessage()</code>方法中修复了这个问题</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-cts-4.0_r1">Android 4.0(API 14)</a></strong></p>
+<blockquote>
+<p><strong>1、Message增加flags属性，用于标识该消息是否已经消费过了，防止同一消息无限次提交</strong></p>
+<blockquote>
+<p>调用<code>isInUse()</code>方法可以查询当前消息是否使用过，这个flags后续也还会加入更多的含义</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-4.1.1_r1/core/java/android/os">Android 4.1.1(API 16)</a></strong></p>
+<blockquote>
+<p>4.1.1版本变化略微大一些，主要是增加了对<strong>异步消息</strong>和<strong>同步屏障消息</strong>的支持</p>
+<p><strong>1、Message支持设置为异步消息，@hide修饰</strong></p>
+<blockquote>
+<p>调用<code>setAsynchronous(true)</code>方法可以将Message设置为异步消息，判断是否为异步消息的<strong>标识</strong>保存在Message的成员变量flags中</p>
+</blockquote>
+<p><strong>2、MessageQueue支持处理异步消息</strong></p>
+<blockquote>
+<p>主要是在<code>enqueueMessage()</code>方法和<code>next()</code>方法中增加<strong>异步消息</strong>的处理逻辑</p>
+</blockquote>
+<p><strong>3、MessageQueue支持添加/删除同步屏障消息</strong></p>
+<blockquote>
+<p>对应方法为：<code>enqueueSyncBarrier()</code>和<code>removeSyncBarrier()</code></p>
+<p>在MessageQueue的<code>next()</code>方法中也增加了对<strong>同步屏障消息</strong>的处理逻辑</p>
+</blockquote>
+<p><strong>4、MessageQueue支持quit()方法</strong></p>
+<blockquote>
+<p>4.1.1版本的退出逻辑是将MessageQueue的成员变量<code>mQuiting</code>设置为true，在调用<code>MessageQueue.next()</code>方法时检查<code>mQuiting</code>变量值，为true则返回null给Lopper，<code>Looper.loop()</code>方法中判断时null值直接结束当前循环</p>
+<p>注意这里并不会清空MessageQueue中的消息，也就是说若消息持有外部的强引用，那么会造成<strong>内存泄漏</strong></p>
+</blockquote>
+<p><strong>5、Lopper删除成员变量mRun</strong></p>
+<blockquote>
+<p>这货本来就没啥用~，早期打印msg执行日志的时候会带上它</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-4.2_r1/core/java/android/os">Android 4.2 (API 17)</a></strong></p>
+<blockquote>
+<p><strong>1、Handler支持设置为异步Handler，@hide修饰</strong></p>
+<blockquote>
+<p>如下，新增<code>Handler(boolean async)</code>构造函数，使用该Handler发送的消息均为<strong>异步消息</strong></p>
+<pre><code class="language-java">public Handler(boolean async) {
+	mAsynchronous = async;
+}
+</code></pre>
+</blockquote>
+<p><strong>2、Handler支持子线程提交同步任务，新增runWithScissors()方法，@hide修饰</strong></p>
+<blockquote>
+<p><code>runWithScissors()</code>方法接受一个Runnable和超时时间，调用此方法提交一个任务后：</p>
+<p>1、若消息发送线程和Handler创建线程是同一线程，那么执行Runnable的run方法</p>
+<p>2、若消息发送线程和Handler创建线程不在同一线程，可以理解为子线程向主线程提交了一个任务，任务提交后，子线程会进入休眠状态等待唤醒，一直等到任务执行结束</p>
+<p><strong>注意！！！该方法不但被@hide修饰，在代码注释也向开发者告知这是个危险方法，不建议使用，因为runWithScissors()方法有两个严重缺陷：</strong></p>
+<p>1、无法取消已提交的任务，即使消息的发送线程已经死亡，主线程仍然会取出消息队列的任务执行，但这时候运行的程序是不符合我们的预期的</p>
+<p>2、可能会造成死锁：子线程向主线程(创建Handler的线程)提交了延迟任务后，子线程是处于等待被唤醒的状态，此时若主线程退出了loop循环并清空了消息队列，那子线程提交的任务就永远不会被唤醒执行，该任务持有的锁永远不会被释放，造成<strong>死锁</strong></p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-4.3_r1/core/java/android/os">Android 4.3 (API 18)</a></strong></p>
+<blockquote>
+<p><strong>1、MessageQueue支持安全退出，quit(safe)方法</strong></p>
+<blockquote>
+<p>新增以下两个方法，<code>safe</code>参数为true时调用<code>removeAllFutureMessagesLocked()</code></p>
+<ul>
+<li><strong><code>removeAllMessagesLocked()</code></strong> ：清空所有消息</li>
+<li><strong><code>removeAllFutureMessagesLocked()</code></strong>：清空延迟消息，到期消息交给Handler分发</li>
+</ul>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-6.0.0_r1/core/java/android/os">Android 6.0 (API 23)</a></strong></p>
+<blockquote>
+<p><strong>1、MessageQueue支持监听文件描述符，对应方法：addOnFileDescriptorEventListener()</strong></p>
+<blockquote>
+<p>这部分代码我没懂，目前的知识储备不足以让我看懂~ /哭唧唧.jpg</p>
+</blockquote>
+<p><strong>2、MessageQueue发送同步屏障消息方法改名，从enqueueSyncBarrier()改为postSyncBarrier()</strong></p>
+<blockquote>
+<p>我很认真的确认过，主要逻辑没动过，真的只是改个名</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-8.0.0_r1/core/java/android/os">Android 8.0 (API 26)</a></strong></p>
+<blockquote>
+<p><strong>1、Handler增加getMain()方法，用于获取运行在UI线程的Handler实例，@hide修饰</strong></p>
+<blockquote>
+<p><code>getMain()</code>检查成员变量<code>MAIN_THREAD_HANDLER</code>是否已经保存了Handler实例，若<code>MAIN_THREAD_HANDLER</code>为空，则使用<code>Looper.getManLooper()</code>创建一个新的Hnadler实例，赋值给<code>MAIN_THREAD_HANDLER</code>变量，最后返回结果</p>
+<p>注意，该方法只是返回一个运行在<strong>UI线程</strong>的Handler，并不是ActivityThread中的成员变量<strong>mH</strong>！！！</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-9.0.0_r1/core/java/android/os">Android 9.0 (API 28)</a></strong></p>
+<blockquote>
+<p><strong>1、Handler增加executeOrSendMessage()方法，@hide修饰</strong></p>
+<blockquote>
+<p>这个方法比较简单，提供的功能和字面意思相同</p>
+<p>判断消息发送线程和消息消费线程是同一线程，是的话调用<code>Handler.dispatchMessage()</code>方法分发消息，否则塞进消息队列等待被分发</p>
+</blockquote>
+<p><strong>2、Handler允许APP创建异步Handler</strong></p>
+<blockquote>
+<p>增加了静态方法<code>createAsync()</code>，调用该方法会返回一个Handler实例，这个Handler实例就是异步Handler</p>
+</blockquote>
+</blockquote>
+</li>
+<li>
+<p><strong><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-10.0.0_r1/core/java/android/os">Android 10.0 (API 29)</a></strong></p>
+<blockquote>
+<p><strong>1、Looper增加setObserver(observer)方法，监听消息分发过程，@hide修饰</strong></p>
+<blockquote>
+<p>一共有3个方法</p>
+<ol>
+<li><strong><code>Object messageDispatchStarting()</code></strong>：发送消息前调用</li>
+<li><strong><code>messageDispatched(token, msg)</code></strong>：当消息被 Handler 处理时调用</li>
+<li><strong><code>dispatchingThrewException(token, msg, exception)</code></strong>：在处理消息时抛出异常时调用</li>
+</ol>
+</blockquote>
+</blockquote>
+</li>
+</ul>
+<p>至此，Handler历代更新的内容都已梳理完成，每个方法都进行了标注，标题中也加入了链接，有阅读源码需求的同学可以点击查看</p>
+<p>ps：个人整理难免会有疏漏，欢迎在留言区补充</p>
+<h2 id="六-总结">六、总结</h2>
+<p>本文将Handler机制拆成了三个部分</p>
+<p><strong>第一部分是介绍Handler诞生的背景，Android为什么要设计出Handler</strong></p>
+<p><strong>第二部分主要讲如何手写一套Handler机制，使用的是Java同步方法Object.wait()/notifiy()</strong></p>
+<p><strong>第三部分介绍的是Handler除了实现消息队列外，还提供了哪些功能？以及开发中使用Handler有哪些需要注意的地方</strong></p>
+<p>希望每位同学在看完本篇文章后都能够有所收获 -.-</p>
+<p><strong>全文完</strong></p>
+<h2 id="七-参考资料">七、参考资料</h2>
+<ul>
+<li>CSDN-liuqiaoyu080512：<a href="https://blog.csdn.net/liuqiaoyu080512/article/details/12895005">GUI为什么不设计为多线程</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-components-localbroadcastmanager/" class="post-title gt-a-link">
+                    Android组件系列：LocalBroadcastManager源码解析
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

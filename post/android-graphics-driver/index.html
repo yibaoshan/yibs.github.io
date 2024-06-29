@@ -1,0 +1,349 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Android图形系统（二）驱动篇：垂直同步到底要不要开？ | 易保山</title>
+
+<link rel="shortcut icon" href="https://yibaoshan.github.io//favicon.ico?v=1719621687068">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://yibaoshan.github.io//styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JR8EKM67KY"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', 'G-JR8EKM67KY');
+</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.1/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script> 
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            易保山
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1719621687068"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Android图形系统（二）驱动篇：垂直同步到底要不要开？
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-06-01 ·
+                    </time>
+                    
+                        <a href="https://yibaoshan.github.io/tag/Android-Graphics/" class="post-tags">
+                            # Android图形系统
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p><em><a href="https://juejin.cn/post/7109743178353213454">点击跳转到掘金阅读</a></em></p>
+</blockquote>
+<p>对于应用开发工程师来说，虽然我们不需要写驱动程序，但是了解View最终是如何显示到屏幕上还是非常有必要的</p>
+<p>本篇是Android图形系列的第二篇文章，依旧是一些关于屏幕的名词解释，和Android系统本身没有太大关系，相较于第一篇文章，本篇重点在于介绍“屏幕刷新”和“垂直同步”相关的知识点</p>
+<figure data-type="image" tabindex="1"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9f439b028aad4700a33eed725eb6b795~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_overview.jpg" loading="lazy"></figure>
+<h1 id="一-开篇">一、开篇</h1>
+<p>平时打游戏时会发现屏幕偶尔会出现“画面撕裂”的情况，屏幕的上半部分和下半部分的画面错开了</p>
+<figure data-type="image" tabindex="2"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b9020fff5f914fd28d31eb45f2c574fe~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_tear.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己拍的</em></p>
+<p>去网上搜画面撕裂怎么办？有网友说打开游戏中的“垂直同步”选项可以解决了，但也有网友说不要开垂直同步，开了之后显卡会被“锁帧”，还会带来屏幕画面延迟，弊大于利</p>
+<p><strong>为什么两边的对于“垂直同步”的看法不一样？垂直同步到底是个什么东西？</strong></p>
+<p><strong>更加让人疑惑的是：显示器为什么会发生画面撕裂？</strong></p>
+<p>这一切的一切都得从“刷新率”和“帧率”开始讲起</p>
+<h2 id="1-什么是刷新率">1、什么是刷新率</h2>
+<p>刷新率的概念诞生自CRT显示器</p>
+<p>早期的CRT屏幕显示画面是靠电子束激发屏幕内表面的荧光粉来显示图像的，由于荧光粉被点亮后很快会熄灭，所以电子枪必须循环地不断激发这些点，电子束从左到右、从上到下点亮荧光粉的过程，被称为“逐行扫描”技术</p>
+<p><strong>在一秒钟内电子束能够扫描出一幅完整画面的速度，被称为屏幕的刷新率，表示单位为HZ</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/71bce285ba504d26ac5f32a2fbeaa045~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_crt_scan.gif" loading="lazy"></figure>
+<p><em>图片来源：http://electronicsgurukulam.blogspot.com/2012/04/how-television-screen-works.html</em></p>
+<p>60HZ屏幕就是显示器一秒钟显示60次画面，即1/60秒内出一个画面</p>
+<p>LCD液晶屏和OLED屏同样使用“逐行扫描”来刷新屏幕像素</p>
+<p><strong>不过由于显示原理发生了变化，屏幕的每个像素点都可以单独控制是否发光</strong></p>
+<p><strong>所以LCD/OLED屏幕的“逐行刷新”和CRT显示器上的原理是不一样的，在现在的显示器中，“逐行刷新”指的是控制器单次会一行或者多行更新像素</strong></p>
+<p>这种技术被称为有源矩阵驱动，也就是市场上主流的TFT-LCD屏和AMOLED屏</p>
+<figure data-type="image" tabindex="4"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e386bee765734a1aad5d0ddbad62fca7~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_amoled.png" loading="lazy"></figure>
+<p><em>图片来源：https://tech.sina.cn/2020-06-07/detail-iircuyvi7202205.d.html</em></p>
+<h3 id="屏幕超频">屏幕超频？</h3>
+<p>一块完整的显示设备主要由LCD或OLED显示器件、驱动电路、控制器这三部分组成，既然有驱动程序，那么我们就可以尝试修改屏幕的刷新率，即屏幕超频</p>
+<figure data-type="image" tabindex="5"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/23353e565aee492ab0e7ff9641331b1e~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_pixel_change_hz.jpeg" loading="lazy"></figure>
+<p><em>图片来源：自己截的</em></p>
+<p>我手里Pixel 3就被我用酷安大佬做的“RR屏幕刷新率”APP从60HZ超频到了61HZ</p>
+<p>除了用APP超频外，Android端还可以通过adb命令修改frame rate值、刷系统内核的来修改刷新率，感兴趣的同学可以看这篇帖子：<a href="https://www.akr-developers.com/d/133">超屏幕刷新率所需的参数？</a></p>
+<p>Windows系统下显示器超频更容易，可以在显卡的控制面板中自定义屏幕刷新率，笔记本用户可以下载Custom Resolution Utility(简称CRU)写入EDID信息来修改屏幕刷新率</p>
+<p>超频的操作步骤很简单，但考虑到屏幕刷新率都是有上限的，不建议一次性超太高</p>
+<p><strong>对于LCD液晶屏和OLCD屏幕来说，刷新率的上限取决于两点：</strong></p>
+<blockquote>
+<p><strong>一是屏幕自身素质，通常是指屏幕的“灰阶响应时间”，刷新率设置过高会像素颜色反应不过来，会导致屏幕偏色、拖影等问题</strong></p>
+<p><strong>二是配套的硬件素质，比如屏幕供电、贷款总线等，刷新率过高可能导致屏幕无法正常工作，比如显示器黑屏、触摸屏失灵</strong></p>
+</blockquote>
+<p>现在的显示器一般都有扫描保护电路，但如果你的屏幕没有这一类保护电路的话，超频可能会损坏显示器内部电路，最终导致显示器报废</p>
+<p>总之，超频有风险，刷机需谨慎</p>
+<h2 id="2-什么是帧率">2、什么是帧率</h2>
+<p>帧率一直是视频领域中的概念，它的诞生最早可以追溯到1860年无声电影时代</p>
+<p>在视频领域中，帧率可以分为拍摄和放映两部分：</p>
+<p><strong>在拍摄视频时，帧率指的是每秒钟记录的画面数量</strong></p>
+<p><strong>在播放视频时，帧率指的是每秒钟输出的画面数量</strong></p>
+<p>1973年施乐公司发明出第一台带有图形用户界面（GUI）的计算机之后，帧率一词也沿用到计算机领域</p>
+<p><strong>在计算机中，帧率指的是每秒钟计算机能够渲染出的画面数量</strong></p>
+<p>帧率的概率很容易理解，它的难点在于当“帧率”和“刷新率”组合在一起时，情况就可能会变的复杂了一些，我们来看几个问题：</p>
+<blockquote>
+<ul>
+<li><strong>显卡每秒能生成250帧画面，但是显示器只有90HZ，多出来的160帧画面有没有意义？是不是白白浪费了显卡性能？</strong></li>
+<li><strong>新买了一台144HZ的显示器，但我的显卡性能很拉胯，玩游戏的平均帧率只有30FPS，显示器会帮我补帧吗？</strong></li>
+<li><strong>网友都说出现撕裂的根本原因在于显卡输出帧的速度比显示器快，买一台高刷显示器就可以避免画面撕裂，真的是这样吗？是不是一群卖显示器的商家挖的消费陷阱？</strong></li>
+</ul>
+</blockquote>
+<p>这几个问题分别对应了“帧率大于刷新率”、“刷新率大于帧率”以及“帧率和刷新频率不匹配导致的画面撕裂”这三种情况</p>
+<p>接下来我们就从显卡和显示器工作原理的角度来聊聊：当刷新率和帧率不匹配时，计算机会如何处理？</p>
+<h3 id="显卡和显示器之间是如何协同工作的">显卡和显示器之间是如何协同工作的？</h3>
+<p>首先我们要知道一点，显卡和显示器虽然在同一块主板上，但是它俩互相是不知道彼此的存在的，显卡和显示器完全有可能来自不同的厂家</p>
+<p>操作系统启动后会开辟出一块内存专门用于画面显示，这块共享内存被称为“帧缓存区”，也就是我们经常听到的frame buffer，它可以位于显存，也可以位于内存，由操作系统决定如何分配</p>
+<p><strong>在不进行任何设置的前提下，操作系统通常使用的是双缓存策略：</strong></p>
+<p><strong>显示控制器驱动正在读取的是一个帧缓存，我们称之为前缓存</strong></p>
+<p><strong>显卡绘制后写入的另一个帧缓存，称之为后缓存，显卡绘制完一帧后通知CPU交换前后缓存的顺序</strong></p>
+<p><strong>显示器刷新的过程，就是不停的切换由前后缓存组成的缓存队列</strong></p>
+<figure data-type="image" tabindex="6"><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/63a7b340872c40c3a47a360e41ce9225~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_process_double_buffer.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<p><strong>显示器负责从前缓存读数据，然后每次一行或多行更新像素颜色，显卡负责画图，向后缓存写数据，渲染完成后通知CPU交换帧缓存</strong></p>
+<p>仔细观察流程图会发现，在整个的工作流程中，显卡和显示器之间是没有任何联系的，这也是导致画面撕裂的原因</p>
+<h3 id="为什么会发生画面撕裂">为什么会发生画面撕裂？</h3>
+<p>下图模拟的是显示器正在刷新屏幕像素，其中上半部分的图像已经刷新完成</p>
+<figure data-type="image" tabindex="7"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/81cee2e5018c468897f1e9f5c7d2da73~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_tear_top.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己做的</em></p>
+<p><strong>而此时显卡也刚好完成下一帧的渲染工作，并触发了交换帧缓存</strong></p>
+<p><strong>显示器依旧按照当前的偏移量读取数据，屏幕最终得到的来自两个不同帧缓存拼接的画面，也就是画面发生了撕裂</strong></p>
+<figure data-type="image" tabindex="8"><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fee90bf3413a40eab7e2df71b6e75cb2~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_tear_bottom.GIF" loading="lazy"></figure>
+<p><em>图片来源：自己做的</em></p>
+<p><strong>重点来了！！屏幕像素点一旦刷新完成，下次刷新要等到16ms以后，刷新率越低等待的时间越长</strong></p>
+<p>这也是我们人眼能够察觉到“画面撕裂”的原因</p>
+<p>综上，我们可以得出以下结论：</p>
+<blockquote>
+<ul>
+<li>
+<p><strong>发生画面撕裂的原因：帧缓存的交换随时可能会发生，一旦显卡在不恰当的时机交换了帧缓存，屏幕就会发生画面撕裂</strong></p>
+</li>
+<li>
+<p><strong>画面撕裂能被人眼感知的原因：撕裂的画面帧会在屏幕上停留十几毫秒的时间，如果画面连续发生撕裂，对于比较敏感的人来说是可以捕捉到的</strong></p>
+</li>
+</ul>
+</blockquote>
+<h1 id="二-垂直同步信号">二、垂直同步信号</h1>
+<p>既然画面撕裂的原因是显卡在不恰当的时机交换了帧缓存，那我们让显卡在显示器刷新的这段时间内，不触发交换frame butter的动作不就解决问题了</p>
+<p>垂直同步就是用来做这样的事情的</p>
+<h2 id="1-什么是垂直同步">1、什么是垂直同步</h2>
+<p>具体实现上，我<strong>们可以让显示控制器驱动在每次刷新屏幕之后，主动向CPU发起一个中断，代表显示器刷新完成</strong></p>
+<p><strong>显卡画面渲染完成以后进入阻塞状态，等收到显示器的完成信号后再去交换帧缓存</strong></p>
+<figure data-type="image" tabindex="9"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c0d4fcc82be24392b157bf84cf3a9cfa~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_process_vsync.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<p>显示器发送的中断信号，就被称为垂直同步（VSync）信号</p>
+<p>通过增加垂直同步信号的方式，使得每次交换帧缓存的时机变得可控，大大降低了画面撕裂发生的概率</p>
+<p>不过，垂直同步在“画面撕裂”的同时，也带来了两个新的问题..</p>
+<h3 id="垂直同步的弊端">垂直同步的弊端</h3>
+<p>当显卡的垂直同步功能被置为TRUE以后，每一帧渲染完调用SwapBuffers函数时，都要等待下一次屏幕刷新的时刻到来，才能交换前后缓存并开始执行下一帧…</p>
+<p>这就产生了两个新的问题：</p>
+<p><strong>一是显卡接收到VSync信号后才去工作，会导致显卡输出的帧率永远不可能大于屏幕的刷新率，可以简单理解为显卡锁帧</strong></p>
+<p><strong>二是在等待垂直同步信号的这段时间内，鼠标、键盘等事件不能及时的显示到屏幕上，会导致画面延迟</strong></p>
+<p>问题一对大部分人来说还可以接受，显卡性能足够的情况下可以稳定输出60帧，非竞技类游戏的话影响不是很大</p>
+<p>但是问题二的画面延迟就很难接受了，60HZ的显示器最大延迟能达到十几毫秒，如果玩的是CSGO、PUBG、穿越火线等FPS游戏，十几毫秒的延迟还是很客观的</p>
+<p><strong>那有没有什么方法能够解决垂直同步信号带来的弊端呢？</strong></p>
+<p><strong>有，就是经常跟垂直同步一起出现的另一个词：三重缓存</strong></p>
+<h2 id="2-什么是三重缓存">2、什么是三重缓存</h2>
+<p>三重缓存是指在开启了垂直同步的基础上，再增加一个中缓存，和原有的前后缓存组成缓存队列</p>
+<p><strong>中缓存保证任何时候都有一帧完整的画画数据等待着交换，显示器读取数据的是前缓存，VSync信号到来后前缓冲和中缓存发生交换</strong></p>
+<p><strong>显卡正在写入数据的是后缓存，显卡渲染完一帧画面后，后缓存只和中缓存发生交换</strong></p>
+<figure data-type="image" tabindex="10"><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7d0f579f55394da4bee41f5201b9376a~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_process_triple_buffer_vsync.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<p>三重缓存让我们有开启垂直同步时的所有好处，我们得到了流畅且没有撕裂的画面，同时，我们还拥有近似关闭垂直同步时那样低的输入显示延迟</p>
+<p><strong>那是不是在打游戏时把三重缓存选项都打开就可以解决画面延迟了呢？</strong></p>
+<p>得分情况，在Windows系统下的游戏不建议打开</p>
+<p><strong>DirectX是微软提供的多媒体编程接口，绝大多数PC端游戏都是使用DirectX框架进行开发，DX的“三重缓存”和这里的三重缓存不是一个意思，DX中的那个是先进先出的帧缓存队列</strong></p>
+<p><strong>显卡绘制完之后不会和前缓存发生交换，而是将帧数据存入帧缓存队列，当显卡接受到垂直同步信号之后把最顶端的帧数据交给屏幕显示</strong></p>
+<p><strong>最新的画面帧永远都在队列的最底端，队列的长度越长，画面的延迟就越明显，这也是为什么PC端的游戏能单独启用“三重缓冲”功能，以及为什么打开“三重缓存”选项后会感觉延迟变高的原因</strong></p>
+<p>解决方法也很简单，N卡驱动程序中有个超低延迟模式，打开之后会将Max_Prerendered_Frame设为1，就是将缓存队列的最大长度设置为1，再搭配上垂直同步技术，就能够大大改善画面撕裂以及画面延迟的情况</p>
+<h2 id="3-什么是自适应刷新">3、什么是自适应刷新</h2>
+<p>自适应刷新也是一种解决“画面撕裂”的方案，算是“垂直同步”的改良版本</p>
+<p>英伟达的G-SYNC、AMD的FreeSync以及苹果的ProMotion技术都可以理解为是自适应刷新技术</p>
+<p><strong>自适应刷新在保留垂直同步信号的基础上又增加了一个中断信号，这个中断信号是由显卡发起的，表示显卡渲染完一帧画面</strong></p>
+<p><strong>显示器在没有接受到显卡完成的信号之前，不刷新屏幕或者以极低的速率去刷新</strong></p>
+<figure data-type="image" tabindex="11"><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/398b0fa194c44e38863eb9020ed4c11d~tplv-k3u1fbpfcp-watermark.image?" alt="image_android_view_v2_process_vrr.jpg" loading="lazy"></figure>
+<p><em>图片来源：自己画的</em></p>
+<p><strong>由于加入了新的同步信号，所以显示器在没有新的画面帧产生之前，也可以进入等待状态，不必按照固定速率去刷新屏幕</strong></p>
+<p><strong>我们实际看到的帧率就变成了，超过屏幕最大刷新率，按照屏幕最高刷新率来显示；否则，按照显卡输出的帧率来显示，这也是“自适应刷新”名称的由来</strong></p>
+<p>在桌面端，自适应刷新能够在最大限度的保证画面无撕裂的同时还可以做到几乎忽略不计的输入延迟，在移动端，除了以上的有点外，自适应刷新还可以降低能耗</p>
+<p>所以，在可预见的将来，自适应刷新一定会成为标准技术，应用到每一台计算机上</p>
+<h1 id="三-结语">三、结语</h1>
+<p>回顾垂直同步和自适应刷新的发展史，会发现本质是显卡和显示器一步步建立通信的发展史</p>
+<p>显卡和显示器对于CPU来说都属于是I/O外设，在没有建立通信之前，它俩是各忙各的</p>
+<p>因为显卡随时可能去交换帧缓存导致画面发生撕裂，于是加入了垂直同步信号，让显示器每次刷新完通知显卡一声</p>
+<p><strong>这就建立了单向通信，显卡可以监听显示器的活动了</strong></p>
+<p>后来发现显卡偶尔渲染一帧画面耗时比较久，而显示器那边还在按照固定速率不停的在刷新，在没有产生新的画面帧的前提下，显示器的刷新动作是没有意义的，于是让显卡也可以发送信号，每次渲染完成通知显示器一声，显示器接收到信号再去刷新屏幕</p>
+<p><strong>这就建立了双向通信，显卡可以监听显示器的活动，显示器也可以监听显卡的活动</strong></p>
+<p>最后，回到文章的标题：垂直同步到底要不要开？</p>
+<p><strong>如果玩主机游戏，建议打开垂直同步，毕竟都玩3A了肯定沉浸式体验游戏剧情最重要，你也不想在玩游戏时画面发生撕裂吧</strong></p>
+<p><strong>如果玩竞技类游戏，尤其是FPS游戏，建议关闭垂直同步，竞技类游戏玩的就是抢时间，而开启垂直同步就意外着有延迟，哪怕再开启“三重缓存”选项也只能是减缓延迟</strong></p>
+<p><strong>如果你有一台144HZ高刷电竞显示器，那开不开垂直同步影响不是很大，看你心情</strong></p>
+<p>虽然高刷屏依旧会发生画面撕裂，但下一次屏幕刷新会很快到来，屏幕会被新的画面帧覆盖，所以只要不是连续在同一位置发生撕裂，人眼很难察觉到屏幕发生了撕裂</p>
+<p><strong>全文完</strong></p>
+<h1 id="四-参考资料">四、参考资料</h1>
+<ul>
+<li><a href="https://www.anandtech.com/show/2794">Triple Buffering: Why We Love It</a></li>
+<li><a href="https://www.amazon.cn/dp/B07R4LNRR6">《计算机图形学基础（第3版）》-陆枫, 何云峰 </a></li>
+<li><a href="https://d1.amobbs.com/bbs_upload782111/files_19/ourdev_486915.pdf">《彩色液晶显示》-（日）堀 浩雄</a></li>
+<li><a href="https://www.bilibili.com/video/BV1kE411c7yZ">【硬核科普】奇妙的帧率增加了！</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://yibaoshan.github.io/post/android-graphics-first/" class="post-title gt-a-link">
+                    Android图形系统（一）硬件篇：LCD和OLED怎么选？
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/yibaoshan" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+                <a href="https://www.zhihu.com/people/yibaoshan?theme=dark" target="_blank">
+                    <i class="fab fa-zhihu gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://yibaoshan.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
